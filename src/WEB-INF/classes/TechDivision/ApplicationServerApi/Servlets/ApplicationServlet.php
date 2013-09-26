@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\ApplicationServerApi\Servlets\ContainerServlet
+ * TechDivision\ApplicationServerApi\Servlets\ApplicationServlet
  *
  * NOTICE OF LICENSE
  *
@@ -23,7 +23,7 @@ use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
  *          Open Software License (OSL 3.0)
  * @author Tim <tw@techdivision.com>
  */
-class ContainerServlet extends AbstractServlet
+class ApplicationServlet extends AbstractServlet
 {
 
     /**
@@ -31,7 +31,7 @@ class ContainerServlet extends AbstractServlet
      *
      * @var string
      */
-    const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\ContainerService';
+    const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\ApplicationService';
 
     /**
      * (non-PHPdoc)
@@ -42,6 +42,8 @@ class ContainerServlet extends AbstractServlet
     {
         $uri = trim($req->getUri(), '/');
 
+        list ($applicationName, $entity, $id) = explode('/', $uri);
+
         if ($ids = $req->getParameter('ids')) {
 
             $content = array();
@@ -50,8 +52,6 @@ class ContainerServlet extends AbstractServlet
                 $content[] = $this->getService(self::SERVICE_CLASS)->load($i);
             }
         } else {
-
-            list ($applicationName, $entity, $id) = explode('/', $uri);
 
             if ($id == null) {
                 $content = $this->getService(self::SERVICE_CLASS)->findAll();
@@ -72,8 +72,16 @@ class ContainerServlet extends AbstractServlet
     public function doPost(Request $req, Response $res)
     {
         $uri = trim($req->getUri(), '/');
-        $content = json_decode($req->getContent());
-        $this->getService(self::SERVICE_CLASS)->create($content);
+        $part = $req->getPart('file');
+
+        file_put_contents("/opt/appserver/webapps/{$part->getFilename()}", $part->getInputStream());
+
+        list ($name, $version) = explode('-', basename($part->getFilename(), '.phar'));
+
+        $application = new \stdClass();
+        $application->name = $name;
+
+        $this->getService(self::SERVICE_CLASS)->create($application);
     }
 
     /**

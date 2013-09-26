@@ -28,26 +28,29 @@ class VhostServlet extends AbstractServlet
 
     /**
      * Class name of the persistence container proxy that handles the data.
+     *
      * @var string
      */
     const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\VhostService';
 
     /**
+     * (non-PHPdoc)
      *
-     * @param Request $req
-     * @param Response $res
-     * @throws \Exception
+     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doGet()
      */
     public function doGet(Request $req, Response $res)
     {
-
         $res->addHeader('Content-Type', 'application/json');
         $res->setContent(json_encode($content));
     }
 
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPost()
+     */
     public function doPost(Request $req, Response $res)
     {
-
         $res->addHeader('Content-Type', 'application/json');
         $res->setContent(json_encode($content));
     }

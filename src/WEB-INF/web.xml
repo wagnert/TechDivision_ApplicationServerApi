@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <web-app version="2.4">
 
-    <display-name>appserver.io API</display-name>
+    <display-name>appserver.io REST API</display-name>
     <description>Webapp that provides the appserver.io API</description>
 
     <servlet>
@@ -18,9 +18,16 @@
         <servlet-class>\TechDivision\ApplicationServerApi\Servlets\ContainerServlet</servlet-class>
     </servlet>
     
+    <servlet>
+        <description><![CDATA[Returns the application configuration data]]></description>
+        <display-name>ApplicationServlet</display-name>
+        <servlet-name>ApplicationServlet</servlet-name>
+        <servlet-class>\TechDivision\ApplicationServerApi\Servlets\ApplicationServlet</servlet-class>
+    </servlet>
+    
     <servlet-mapping>
         <servlet-name>VhostServlet</servlet-name>
-        <url-pattern>/vhosts/*</url-pattern>
+        <url-pattern>/vhosts*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -30,12 +37,22 @@
     
     <servlet-mapping>
         <servlet-name>ContainerServlet</servlet-name>
-        <url-pattern>/containers/*</url-pattern>
+        <url-pattern>/containers*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>ContainerServlet</servlet-name>
         <url-pattern>/containers</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>ApplicationServlet</servlet-name>
+        <url-pattern>/apps*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ApplicationServlet</servlet-name>
+        <url-pattern>/apps</url-pattern>
     </servlet-mapping>
 
 </web-app>
