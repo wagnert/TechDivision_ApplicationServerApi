@@ -89,7 +89,9 @@ abstract class AbstractServlet extends HttpServlet implements Servlet
     public function getService($serviceClass)
     {
         $initialContext = $this->getServletConfig()->getApplication()->getInitialContext();
-        return $initialContext->newInstance($serviceClass, array($initialContext));
+        $service = $initialContext->newInstance($serviceClass, array($initialContext));
+        $service->setNormalizer($this->newInstance('TechDivision\ApplicationServer\Normalizer'));
+        return $service;
     }
 
     public function setRequest(Request $request)
