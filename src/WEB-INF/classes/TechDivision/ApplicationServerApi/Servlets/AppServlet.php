@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\ApplicationServerApi\Servlets\ApplicationServlet
+ * TechDivision\ApplicationServerApi\Servlets\AppServlet
  *
  * NOTICE OF LICENSE
  *
@@ -23,7 +23,7 @@ use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
  *          Open Software License (OSL 3.0)
  * @author Tim <tw@techdivision.com>
  */
-class ApplicationServlet extends AbstractServlet
+class AppServlet extends AbstractServlet
 {
 
     /**
@@ -31,7 +31,7 @@ class ApplicationServlet extends AbstractServlet
      *
      * @var string
      */
-    const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\ApplicationService';
+    const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\AppService';
 
     /**
      * (non-PHPdoc)
