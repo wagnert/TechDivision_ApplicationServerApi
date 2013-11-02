@@ -19,10 +19,10 @@
     </servlet>
     
     <servlet>
-        <description><![CDATA[Returns the application configuration data]]></description>
-        <display-name>ApplicationServlet</display-name>
-        <servlet-name>ApplicationServlet</servlet-name>
-        <servlet-class>\TechDivision\ApplicationServerApi\Servlets\ApplicationServlet</servlet-class>
+        <description><![CDATA[Returns the app configuration data]]></description>
+        <display-name>AppServlet</display-name>
+        <servlet-name>AppServlet</servlet-name>
+        <servlet-class>\TechDivision\ApplicationServerApi\Servlets\AppServlet</servlet-class>
     </servlet>
     
     <servlet-mapping>
@@ -46,12 +46,12 @@
     </servlet-mapping>
     
     <servlet-mapping>
-        <servlet-name>ApplicationServlet</servlet-name>
+        <servlet-name>AppServlet</servlet-name>
         <url-pattern>/apps*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>ApplicationServlet</servlet-name>
+        <servlet-name>AppServlet</servlet-name>
         <url-pattern>/apps</url-pattern>
     </servlet-mapping>
 
