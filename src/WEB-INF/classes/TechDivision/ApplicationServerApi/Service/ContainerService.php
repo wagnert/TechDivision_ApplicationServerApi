@@ -61,7 +61,7 @@ class ContainerService extends AbstractService
             // add address/port + worker number
             $container->address = $receiverNode->getParam('address');
             $container->port = $receiverNode->getParam('port');
-            $container->workerNumber = $receiverNode->getParam('workerNumber');
+            $container->worker_number = $receiverNode->getParam('workerNumber');
             
             // add the stdClass representation to the array
             $stdClass->containers[] = $container;
