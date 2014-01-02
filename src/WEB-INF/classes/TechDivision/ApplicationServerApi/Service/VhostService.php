@@ -67,8 +67,8 @@ class VhostService extends AbstractService
                 $vhost = $vhostNode->toStdClass();
                 
                 // try to load the vhost's app node
-                if (array_key_exists($appBase, $appNodes)) {
-                    $vhost->app = $appNodes[$appBase]->getPrimaryKey();
+                if (array_key_exists($baseDirectory, $appNodes)) {
+                    $vhost->app = $appNodes[$baseDirectory]->getPrimaryKey();
                 }
                 
                 // add the vhost stdClass representation to the array
