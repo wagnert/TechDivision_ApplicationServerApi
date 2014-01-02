@@ -51,7 +51,20 @@ class ContainerService extends AbstractService
         
         // convert the container nodes into stdClass representation
         foreach ($containerNodes as $containerNode) {
-            $stdClass->containers[] = $containerNode->toStdClass();
+
+            // load the receiver information
+            $receiverNode = $containerNode->getReceiver();
+            
+            // initialize the container stdClass representation
+            $container = $containerNode->toStdClass();
+            
+            // add address/port + worker number
+            $container->address = $receiverNode->getParam('address');
+            $container->port = $receiverNode->getParam('port');
+            $container->workerNumber = $receiverNode->getParam('workerNumber');
+            
+            // add the stdClass representation to the array
+            $stdClass->containers[] = $container;
         }
         
         // return the stdClass representation of the apps
