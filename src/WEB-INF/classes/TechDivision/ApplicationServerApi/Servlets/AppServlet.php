@@ -90,12 +90,10 @@ class AppServlet extends AbstractServlet
         $uri = trim($req->getUri(), '/');
         $part = $req->getPart('file');
         
-        file_put_contents("/opt/appserver/webapps/{$part->getFilename()}", $part->getInputStream());
-        
-        list ($name, $version) = explode('-', basename($part->getFilename(), '.phar'));
+        file_put_contents("/opt/appserver/deploy/{$part->getFilename()}", $part->getInputStream());
         
         $application = new \stdClass();
-        $application->name = $name;
+        $application->name = $part->getFilename();
         
         $this->service->create($application);
     }

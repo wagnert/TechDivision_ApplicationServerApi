@@ -33,36 +33,59 @@ class VhostService extends AbstractService
      * @var string
      */
     const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\VhostService';
-    
+
     /**
      * Returns all container nodes registered in system configuration.
-     * 
+     *
      * @return \stdClass A \stdClass representation of the container nodes
      */
     public function findAll()
     {
-
-        // load all vhost nodes
-        $vhostNodes = $this->getApi(self::SERVICE_CLASS)->findAll();
-
+        
+        // load all container nodes
+        $containerNodes = $this->getApi(ContainerService::SERVICE_CLASS)->findAll();
+        
         // initialize class container
         $stdClass = new \stdClass();
         $stdClass->vhosts = array();
         
+        // load the app nodes
+        $appNodes = $this->getApi(AppService::SERVICE_CLASS)->findAll();
+        
         // convert the vhost nodes into stdClass representation
-        foreach ($vhostNodes as $vhostNode) {
-            $stdClass->vhosts[] = $vhostNode->toStdClass();
+        foreach ($containerNodes as $containerNode) {
+            
+            // load the host node and iterate over all vhost nodes
+            $hostNode = $containerNode->getHost();
+            foreach ($hostNode->getVhosts() as $vhostNode) {
+                
+                // prepare the base directory (the app nodes primary key)
+                $appBase = $hostNode->getAppBase() . $vhostNode->getAppBase();
+                $baseDirectory = $this->getApi(self::SERVICE_CLASS)->getBaseDirectory($appBase);
+                
+                // create the vhost stdClass representation
+                $vhost = $vhostNode->toStdClass();
+                
+                // try to load the vhost's app node
+                if (array_key_exists($appBase, $appNodes)) {
+                    $vhost->app = $appNodes[$appBase]->getPrimaryKey();
+                }
+                
+                // add the vhost stdClass representation to the array
+                $stdClass->vhosts[] = $vhost;
+            }
         }
         
         // return the stdClass representation of the vhosts
         return $stdClass;
     }
-    
+
     /**
      * Initializes the stdClass representation of the vhost node with
      * the ID passed as parameter.
-     * 
-     * @param string $id The ID of the requested vhost node
+     *
+     * @param string $id
+     *            The ID of the requested vhost node
      * @return \stdClass The vhost node as \stdClass representation
      */
     public function load($id)
@@ -70,11 +93,11 @@ class VhostService extends AbstractService
         
         // load the vhost with the requested ID
         $vhostNode = $this->getApi(self::SERVICE_CLASS)->load($id);
-
+        
         // initialize a class container
         $stdClass = new \stdClass();
         $stdClass->vhost = $vhostNode->toStdClass();
-
+        
         // return the stdClass representation of the vhost
         return $stdClass;
     }
