@@ -13,7 +13,9 @@ namespace TechDivision\ApplicationServerApi\Servlets;
 
 use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ServletContainer\Interfaces\Response;
+use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
+use TechDivision\ApplicationServerApi\Service\ContainerService;
 
 /**
  *
@@ -25,13 +27,27 @@ use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
  */
 class ContainerServlet extends AbstractServlet
 {
+    
+    /**
+     * Assmbler to assemble app nodes to stdClass representation.
+     *
+     * @var \TechDivision\ApplicationServerApi\Service\ContainerService
+     */
+    protected $service;
 
     /**
-     * Class name of the persistence container proxy that handles the data.
-     *
-     * @var string
+     * (non-PHPdoc)
+     * 
+     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
      */
-    const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\ContainerService';
+    public function init(ServletConfig $config)
+    {
+        parent::init($config);
+        $initialContext = $this->getInitialContext();
+        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\ContainerService', array(
+            $initialContext
+        ));
+    }
 
     /**
      * (non-PHPdoc)
@@ -40,6 +56,7 @@ class ContainerServlet extends AbstractServlet
      */
     public function doGet(Request $req, Response $res)
     {
+        
         $uri = trim($req->getUri(), '/');
 
         if ($ids = $req->getParameter('ids')) {
@@ -47,16 +64,16 @@ class ContainerServlet extends AbstractServlet
             $content = array();
 
             foreach ($ids as $id) {
-                $content[] = $this->getService(self::SERVICE_CLASS)->load($i);
+                $content[] = $this->service->load($i);
             }
         } else {
 
             list ($applicationName, $entity, $id) = explode('/', $uri);
 
             if ($id == null) {
-                $content = $this->getService(self::SERVICE_CLASS)->findAll();
+                $content = $this->service->findAll();
             } else {
-                $content = $this->getService(self::SERVICE_CLASS)->load($id);
+                $content = $this->service->load($id);
             }
         }
 
@@ -73,7 +90,7 @@ class ContainerServlet extends AbstractServlet
     {
         $uri = trim($req->getUri(), '/');
         $content = json_decode($req->getContent());
-        $this->getService(self::SERVICE_CLASS)->create($content);
+        $this->service->create($content);
     }
 
     /**
@@ -85,7 +102,7 @@ class ContainerServlet extends AbstractServlet
     {
         $uri = trim($req->getUri(), '/');
         $content = json_decode($req->getContent());
-        $this->getService(self::SERVICE_CLASS)->update($content);
+        $this->service->update($content);
     }
 
     /**
@@ -97,6 +114,6 @@ class ContainerServlet extends AbstractServlet
     {
         $uri = trim($req->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri);
-        $this->getService(self::SERVICE_CLASS)->delete($id);
+        $this->service->delete($id);
     }
 }

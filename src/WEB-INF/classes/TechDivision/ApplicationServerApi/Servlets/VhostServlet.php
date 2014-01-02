@@ -13,7 +13,9 @@ namespace TechDivision\ApplicationServerApi\Servlets;
 
 use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ServletContainer\Interfaces\Response;
+use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
+use TechDivision\ApplicationServerApi\Service\VhostService;
 
 /**
  *
@@ -27,11 +29,25 @@ class VhostServlet extends AbstractServlet
 {
 
     /**
-     * Class name of the persistence container proxy that handles the data.
+     * Service to to handle vhost nodes.
      *
-     * @var string
+     * @var \TechDivision\ApplicationServerApi\Service\VhostService
      */
-    const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\VhostService';
+    protected $service;
+
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     */
+    public function init(ServletConfig $config)
+    {
+        parent::init($config);
+        $initialContext = $this->getInitialContext();
+        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\VhostService', array(
+            $initialContext
+        ));
+    }
 
     /**
      * (non-PHPdoc)
@@ -40,6 +56,27 @@ class VhostServlet extends AbstractServlet
      */
     public function doGet(Request $req, Response $res)
     {
+        
+        $uri = trim($req->getUri(), '/');
+
+        if ($ids = $req->getParameter('ids')) {
+
+            $content = array();
+
+            foreach ($ids as $id) {
+                $content[] = $this->service->load($i);
+            }
+        } else {
+
+            list ($applicationName, $entity, $id) = explode('/', $uri);
+
+            if ($id == null) {
+                $content = $this->service->findAll();
+            } else {
+                $content = $this->service->load($id);
+            }
+        }
+        
         $res->addHeader('Content-Type', 'application/json');
         $res->setContent(json_encode($content));
     }
