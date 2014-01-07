@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\ApplicationServerApi\Servlets\AppServlet
+ * TechDivision\ApplicationServerApi\Servlets\ThumbnailServlet
  *
  * NOTICE OF LICENSE
  *
@@ -25,7 +25,7 @@ use TechDivision\ApplicationServerApi\Service\AppService;
  *          Open Software License (OSL 3.0)
  * @author Tim <tw@techdivision.com>
  */
-class AppServlet extends AbstractServlet
+class ThumbnailServlet extends AbstractServlet
 {
 
     /**
@@ -51,6 +51,9 @@ class AppServlet extends AbstractServlet
         $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\AppService', array(
             $initialContext
         ));
+        
+        // set the base URL for rendering images/thumbnails
+        $this->service->setBaseUrl($this->getBaseUrl());
     }
 
     /**
@@ -63,67 +66,12 @@ class AppServlet extends AbstractServlet
         $uri = trim($req->getUri(), '/');
         
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
+            
+        $thumbnailPath = $this->service->thumbnail("/$id");
         
-        if ($ids = $req->getParameter('ids')) {
-            
-            $content = array();
-            
-            foreach ($ids as $id) {
-                $content[] = $this->service->load("/$id");
-            }
-            
-        } else {
-            
-            if ($id == null) {
-                $content = $this->service->findAll();
-            } else {
-                $content = $this->service->load("/$id");
-            }
+        if (file_exists($thumbnailPath)) {
+            $res->addHeader('Content-Type', 'image/png');
+            $res->setContent(file_get_contents($thumbnailPath));
         }
-        
-        $res->addHeader('Content-Type', 'application/json');
-        $res->setContent(json_encode($content));
-    }
-
-    /**
-     * (non-PHPdoc)
-     *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPost()
-     */
-    public function doPost(Request $req, Response $res)
-    {
-        $uri = trim($req->getUri(), '/');
-        $part = $req->getPart('file');
-        
-        file_put_contents("/opt/appserver/deploy/{$part->getFilename()}", $part->getInputStream());
-        
-        $application = new \stdClass();
-        $application->name = $part->getFilename();
-        
-        $this->service->create($application);
-    }
-
-    /**
-     * (non-PHPdoc)
-     *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPut()
-     */
-    public function doPut(Request $req, Response $res)
-    {
-        $uri = trim($req->getUri(), '/');
-        $content = json_decode($req->getContent());
-        $this->service->update($content);
-    }
-
-    /**
-     * (non-PHPdoc)
-     *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doDelete()
-     */
-    public function doDelete(Request $req, Response $res)
-    {
-        $uri = trim($req->getUri(), '/');
-        list ($applicationName, $entity, $id) = explode('/', $uri);
-        $this->service->delete($id);
     }
 }

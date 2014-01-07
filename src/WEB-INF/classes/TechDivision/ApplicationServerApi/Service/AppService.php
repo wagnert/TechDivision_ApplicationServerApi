@@ -13,9 +13,9 @@ namespace TechDivision\ApplicationServerApi\Service;
 
 use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ServletContainer\Interfaces\Response;
-use TechDivision\ApplicationServer\Api\Node\NodeInterface;
 use TechDivision\ApplicationServerApi\Service\AbstractService;
 use TechDivision\ApplicationServerApi\Service\ContainerService;
+use TechDivision\ApplicationServer\Api\Node\AppNode;
 
 /**
  *
@@ -27,22 +27,29 @@ use TechDivision\ApplicationServerApi\Service\ContainerService;
  */
 class AppService extends AbstractService
 {
-    
+
     /**
      * Class name of the persistence container proxy that handles the data.
      *
      * @var string
      */
     const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\AppService';
-    
+
+    /**
+     * The thumbnail image name.
+     * 
+     * @var string
+     */
+    const THUMBNAIL = 'app-thumbnail.png';
+
     /**
      * Returns all app nodes registered in system configuration.
-     * 
+     *
      * @return \stdClass A \stdClass representation of the app nodes
      */
     public function findAll()
     {
-
+        
         // load all application nodes
         $appNodes = $this->getApi(self::SERVICE_CLASS)->findAll();
         
@@ -52,18 +59,29 @@ class AppService extends AbstractService
         
         // convert the application nodes into stdClass representation
         foreach ($appNodes as $appNode) {
-            $stdClass->apps[] = $appNode->toStdClass();
+            
+            // create the stdClass representation
+            $app = $appNode->toStdClass();
+            
+            // add the thumbnail for the admin interface
+            if (file_exists($thumbnail = $this->getThumbnailPath($appNode))) {
+                $app->thumbnail = $thumbnail;
+            }
+            
+            // add the stdClass representation to the array
+            $stdClass->apps[] = $app;
         }
         
         // return the stdClass representation of the apps
         return $stdClass;
     }
-    
+
     /**
      * Initializes the stdClass representation of the app node with
      * the ID passed as parameter.
-     * 
-     * @param string $id The ID of the requested app node
+     *
+     * @param string $id
+     *            The ID of the requested app node
      * @return \stdClass The app node as \stdClass representation
      */
     public function load($id)
@@ -75,9 +93,9 @@ class AppService extends AbstractService
         // initialize a class container
         $stdClass = new \stdClass();
         $stdClass->app = $appNode->toStdClass();
-        $stdClass->containers = array();
         
         // load the container nodes and append them
+        $stdClass->containers = array();
         $containerNodes = $this->getApi(ContainerService::SERVICE_CLASS)->findAll();
         foreach ($containerNodes as $containerNode) {
             if (strstr($appNode->getWebappPath(), $containerNode->getHost()->getAppBase())) {
@@ -87,5 +105,34 @@ class AppService extends AbstractService
         
         // return the stdClass representation of the app
         return $stdClass;
+    }
+    
+    /**
+     * Returns the path to the thumbnail image of the app with the 
+     * passed ID.
+     * 
+     * @param string $id ID of the app to return the thumbnail for
+     * @return string The absolute path the thumbnail
+     */
+    public function thumbnail($id)
+    {
+        
+        // load the application with the requested ID
+        $appNode = $this->getApi(self::SERVICE_CLASS)->load($id);
+        
+        // return the thumbnail path for the admin interface
+        return $this->getThumbnailPath($appNode);
+    }
+
+    /**
+     * Returns the full path to the app's thumbnail.
+     *
+     * @param AppNode $appNode
+     *            The app node to return the thumbnail path for
+     * @return string The absolute path to the app's thumbnail
+     */
+    protected function getThumbnailPath(AppNode $appNode)
+    {
+        return $appNode->getWebappPath() . DIRECTORY_SEPARATOR . 'WEB-INF' . DIRECTORY_SEPARATOR . self::THUMBNAIL;
     }
 }

@@ -32,6 +32,13 @@ class AbstractService
     protected $initialContext;
     
     /**
+     * The base URL for rendering images/thumbnails.
+     * 
+     * @var string
+     */
+    protected $baseUrl;
+    
+    /**
      * The initial context instance passed from the servlet.
      * 
      * @param InitialContext $initialContext The initial context instance
@@ -108,5 +115,26 @@ class AbstractService
         $initialContext = $this->getInitialContext();
         $apiInstance = $initialContext->newInstance($apiClass, array($initialContext));
         return $apiInstance;
+    }
+    
+    /**
+     * The base URL for rendering images/thumbnails.
+     * 
+     * @param string $baseUrl The base URL
+     * @return void
+     */
+    public function setBaseUrl($baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
+    }
+    
+    /**
+     * Return's the base URL for rendering images/thumbnails.
+     * 
+     * @return string The base URL
+     */
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
     }
 }

@@ -25,6 +25,13 @@
         <servlet-class>\TechDivision\ApplicationServerApi\Servlets\AppServlet</servlet-class>
     </servlet>
     
+    <servlet>
+        <description><![CDATA[Returns the app's thumbnail]]></description>
+        <display-name>ThumbnailServlet</display-name>
+        <servlet-name>ThumbnailServlet</servlet-name>
+        <servlet-class>\TechDivision\ApplicationServerApi\Servlets\ThumbnailServlet</servlet-class>
+    </servlet>
+    
     <servlet-mapping>
         <servlet-name>VhostServlet</servlet-name>
         <url-pattern>/vhosts*</url-pattern>
@@ -53,6 +60,16 @@
     <servlet-mapping>
         <servlet-name>AppServlet</servlet-name>
         <url-pattern>/apps</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>ThumbnailServlet</servlet-name>
+        <url-pattern>/thumbnails*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ThumbnailServlet</servlet-name>
+        <url-pattern>/thumbnails</url-pattern>
     </servlet-mapping>
 
 </web-app>
