@@ -59,17 +59,7 @@ class AppService extends AbstractService
         
         // convert the application nodes into stdClass representation
         foreach ($appNodes as $appNode) {
-            
-            // create the stdClass representation
-            $app = $appNode->toStdClass();
-            
-            // add the thumbnail for the admin interface
-            if (file_exists($thumbnail = $this->getThumbnailPath($appNode))) {
-                $app->thumbnail = $thumbnail;
-            }
-            
-            // add the stdClass representation to the array
-            $stdClass->apps[] = $app;
+            $stdClass->apps[] = $appNode->toStdClass();
         }
         
         // return the stdClass representation of the apps

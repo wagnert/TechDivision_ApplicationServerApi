@@ -51,9 +51,6 @@ class ThumbnailServlet extends AbstractServlet
         $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\AppService', array(
             $initialContext
         ));
-        
-        // set the base URL for rendering images/thumbnails
-        $this->service->setBaseUrl($this->getBaseUrl());
     }
 
     /**
@@ -63,12 +60,16 @@ class ThumbnailServlet extends AbstractServlet
      */
     public function doGet(Request $req, Response $res)
     {
+        
+        // explode the URI
         $uri = trim($req->getUri(), '/');
-        
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-            
-        $thumbnailPath = $this->service->thumbnail("/$id");
         
+        // set the base URL for rendering images/thumbnails
+        $this->service->setBaseUrl($this->getBaseUrl($req));
+        $thumbnailPath = $this->service->thumbnail($id);
+        
+        // check of the file exists, if yes, return the thumbnail image
         if (file_exists($thumbnailPath)) {
             $res->addHeader('Content-Type', 'image/png');
             $res->setContent(file_get_contents($thumbnailPath));

@@ -66,9 +66,10 @@ class ContainerServlet extends AbstractServlet
             foreach ($ids as $id) {
                 $content[] = $this->service->load($i);
             }
+            
         } else {
 
-            list ($applicationName, $entity, $id) = explode('/', $uri);
+            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
 
             if ($id == null) {
                 $content = $this->service->findAll();
@@ -88,7 +89,6 @@ class ContainerServlet extends AbstractServlet
      */
     public function doPost(Request $req, Response $res)
     {
-        $uri = trim($req->getUri(), '/');
         $content = json_decode($req->getContent());
         $this->service->create($content);
     }
@@ -100,7 +100,6 @@ class ContainerServlet extends AbstractServlet
      */
     public function doPut(Request $req, Response $res)
     {
-        $uri = trim($req->getUri(), '/');
         $content = json_decode($req->getContent());
         $this->service->update($content);
     }
@@ -113,7 +112,7 @@ class ContainerServlet extends AbstractServlet
     public function doDelete(Request $req, Response $res)
     {
         $uri = trim($req->getUri(), '/');
-        list ($applicationName, $entity, $id) = explode('/', $uri);
+        list ($applicationName, $entity, $id) = explode('/', $uri, 3);
         $this->service->delete($id);
     }
 }

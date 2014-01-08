@@ -66,9 +66,10 @@ class VhostServlet extends AbstractServlet
             foreach ($ids as $id) {
                 $content[] = $this->service->load($i);
             }
+            
         } else {
 
-            list ($applicationName, $entity, $id) = explode('/', $uri);
+            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
 
             if ($id == null) {
                 $content = $this->service->findAll();

@@ -31,20 +31,6 @@ abstract class AbstractServlet extends HttpServlet implements Servlet
 {
 
     /**
-     * The actual request instance.
-     * 
-     * @var \TechDivision\ServletContainer\Interfaces\Request
-     */
-    protected $request;
-
-    /**
-     * The actual response instance.
-     * 
-     * @var \TechDivision\ServletContainer\Interfaces\Response
-     */
-    protected $response;
-
-    /**
      * The initial context instance passed from the servlet config.
      *
      * @var \TechDivision\ApplicationServer\InitialContext
@@ -96,53 +82,11 @@ abstract class AbstractServlet extends HttpServlet implements Servlet
     }
 
     /**
-     * Sets the actual request instance.
-     *
-     * @param \TechDivision\ServletContainer\Interfaces\Request $request
-     *            The request instance to set
-     */
-    public function setRequest(Request $request)
-    {
-        $this->request = $request;
-    }
-
-    /**
-     * Sets the actual response instance.
-     *
-     * @param \TechDivision\ServletContainer\Interfaces\Response $response
-     *            The response instance to set
-     */
-    public function setResponse(Response $response)
-    {
-        $this->response = $response;
-    }
-
-    /**
-     * Returns the actual request instance.
-     *
-     * @return \TechDivision\ServletContainer\Interfaces\Request The request instance
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
-     * Returns the actual response instance.
-     *
-     * @return \TechDivision\ServletContainer\Interfaces\Response The response instance
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
      * Returns the application's base URL for html base tag
      *
      * @return string The application's base URL
      */
-    public function getBaseUrl()
+    public function getBaseUrl(Request $req)
     {
         // initialize the base URL
         $baseUrl = '/';
@@ -150,8 +94,7 @@ abstract class AbstractServlet extends HttpServlet implements Servlet
         // if the application has NOT been called over a VHost configuration append application folder name
         if (! $this->getServletConfig()
             ->getApplication()
-            ->isVhostOf($this->getRequest()
-            ->getServerName())) {
+            ->isVhostOf($req->getServerName())) {
             $baseUrl .= $this->getServletConfig()
                 ->getApplication()
                 ->getName() . '/';

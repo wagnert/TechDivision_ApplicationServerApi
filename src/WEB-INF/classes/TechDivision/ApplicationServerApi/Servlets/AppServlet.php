@@ -62,22 +62,22 @@ class AppServlet extends AbstractServlet
     {
         $uri = trim($req->getUri(), '/');
         
-        list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-        
         if ($ids = $req->getParameter('ids')) {
             
             $content = array();
             
             foreach ($ids as $id) {
-                $content[] = $this->service->load("/$id");
+                $content[] = $this->service->load($id);
             }
             
         } else {
+        
+            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
             
             if ($id == null) {
                 $content = $this->service->findAll();
             } else {
-                $content = $this->service->load("/$id");
+                $content = $this->service->load($id);
             }
         }
         
@@ -92,7 +92,7 @@ class AppServlet extends AbstractServlet
      */
     public function doPost(Request $req, Response $res)
     {
-        $uri = trim($req->getUri(), '/');
+        
         $part = $req->getPart('file');
         
         file_put_contents("/opt/appserver/deploy/{$part->getFilename()}", $part->getInputStream());
@@ -110,7 +110,6 @@ class AppServlet extends AbstractServlet
      */
     public function doPut(Request $req, Response $res)
     {
-        $uri = trim($req->getUri(), '/');
         $content = json_decode($req->getContent());
         $this->service->update($content);
     }
@@ -123,7 +122,7 @@ class AppServlet extends AbstractServlet
     public function doDelete(Request $req, Response $res)
     {
         $uri = trim($req->getUri(), '/');
-        list ($applicationName, $entity, $id) = explode('/', $uri);
+        list ($applicationName, $entity, $id) = explode('/', $uri, 3);
         $this->service->delete($id);
     }
 }
