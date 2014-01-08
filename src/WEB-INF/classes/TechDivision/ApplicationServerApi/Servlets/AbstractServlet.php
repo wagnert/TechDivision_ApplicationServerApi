@@ -17,10 +17,11 @@ use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ServletContainer\Interfaces\Response;
 use TechDivision\PersistenceContainerClient\Context\Connection\Factory;
+use TechDivision\ApplicationServer\InitialContext;
 
 /**
  *
- * @package TechDivision\Example
+ * @package TechDivision\ApplicationServerApi
  * @copyright Copyright (c) 2013 <info@techdivision.com> - TechDivision GmbH
  * @license http://opensource.org/licenses/osl-3.0.php
  *          Open Software License (OSL 3.0)
@@ -30,15 +31,45 @@ abstract class AbstractServlet extends HttpServlet implements Servlet
 {
 
     /**
-     * Servlet context to transfer data between the servlet and the view.
+     * The initial context instance passed from the servlet config.
      *
-     * @var array
+     * @var \TechDivision\ApplicationServer\InitialContext
      */
-    protected $context = array();
+    protected $initialContext;
 
-    protected $request;
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     */
+    public function init(ServletConfig $config)
+    {
+        parent::init($config);
+        $this->setInitialContext($this->getServletConfig()
+            ->getApplication()
+            ->getInitialContext());
+    }
 
-    protected $response;
+    /**
+     * Returns the initial context instance passed with the servlet config.
+     *
+     * @return \TechDivision\ApplicationServer\InitialContext The initial context instance
+     */
+    public function getInitialContext()
+    {
+        return $this->initialContext;
+    }
+
+    /**
+     * Sets the initial context instance.
+     *
+     * @param \TechDivision\ApplicationServer\InitialContext $initialContext
+     *            The initial context instance
+     */
+    public function setInitialContext(InitialContext $initialContext)
+    {
+        $this->initialContext = $initialContext;
+    }
 
     /**
      * Returns the base path to the web app.
@@ -51,85 +82,25 @@ abstract class AbstractServlet extends HttpServlet implements Servlet
     }
 
     /**
-     * Attaches the passed data under the also passed key in the servlet context.
+     * Returns the application's base URL for html base tag
      *
-     * @param $key string
-     *            The key to attach the data under
-     * @param $value mixed
-     *            The data to be attached
-     * @return void
+     * @return string The application's base URL
      */
-    public function addAttribute($key, $value)
+    public function getBaseUrl(Request $req)
     {
-        $this->context[$key] = $value;
-    }
-
-    /**
-     * Returns the data for the passed key.
-     *
-     * @param string $key
-     *            The key to return the data for
-     * @return mixed The requested data
-     */
-    public function getAttribute($key)
-    {
-        if (array_key_exists($key, $this->context)) {
-            return $this->context[$key];
-        }
-    }
-
-    /**
-     * Creates a new proxy for the passed session bean class name
-     * and returns it.
-     *
-     * @param string $serviceClass
-     *            The session bean class name to return the proxy for
-     * @return mixed The proxy instance
-     */
-    public function getService($serviceClass)
-    {
-        $initialContext = $this->getServletConfig()->getApplication()->getInitialContext();
-        $service = $initialContext->newInstance($serviceClass, array($initialContext));
-        return $service;
-    }
-
-    public function setRequest(Request $request)
-    {
-        $this->request = $request;
-    }
-
-    public function setResponse(Response $response)
-    {
-        $this->response = $response;
-    }
-
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * Returns baseurl for html base tag
-     *
-     * @return string
-     */
-    public function getBaseUrl()
-    {
+        // initialize the base URL
         $baseUrl = '/';
-        // if the application has NOT been called over a VHost configuration append application folder naem
+        
+        // if the application has NOT been called over a VHost configuration append application folder name
         if (! $this->getServletConfig()
             ->getApplication()
-            ->isVhostOf($this->getRequest()
-            ->getServerName())) {
+            ->isVhostOf($req->getServerName())) {
             $baseUrl .= $this->getServletConfig()
                 ->getApplication()
                 ->getName() . '/';
         }
+        
+        // return the base URL
         return $baseUrl;
     }
 }

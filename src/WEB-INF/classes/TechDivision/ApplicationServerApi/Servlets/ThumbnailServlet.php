@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\ApplicationServerApi\Servlets\VhostServlet
+ * TechDivision\ApplicationServerApi\Servlets\ThumbnailServlet
  *
  * NOTICE OF LICENSE
  *
@@ -15,7 +15,7 @@ use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ServletContainer\Interfaces\Response;
 use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
-use TechDivision\ApplicationServerApi\Service\VhostService;
+use TechDivision\ApplicationServerApi\Service\AppService;
 
 /**
  *
@@ -25,13 +25,13 @@ use TechDivision\ApplicationServerApi\Service\VhostService;
  *          Open Software License (OSL 3.0)
  * @author Tim <tw@techdivision.com>
  */
-class VhostServlet extends AbstractServlet
+class ThumbnailServlet extends AbstractServlet
 {
 
     /**
-     * Service to to handle vhost nodes.
+     * Assmbler to assemble app nodes to stdClass representation.
      *
-     * @var \TechDivision\ApplicationServerApi\Service\VhostService
+     * @var \TechDivision\ApplicationServerApi\Service\AppService
      */
     protected $service;
 
@@ -42,9 +42,13 @@ class VhostServlet extends AbstractServlet
      */
     public function init(ServletConfig $config)
     {
+        
+        // call parent init method
         parent::init($config);
+        
+        // create a new service instance 
         $initialContext = $this->getInitialContext();
-        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\VhostService', array(
+        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\AppService', array(
             $initialContext
         ));
     }
@@ -57,39 +61,18 @@ class VhostServlet extends AbstractServlet
     public function doGet(Request $req, Response $res)
     {
         
+        // explode the URI
         $uri = trim($req->getUri(), '/');
-
-        if ($ids = $req->getParameter('ids')) {
-
-            $content = array();
-
-            foreach ($ids as $id) {
-                $content[] = $this->service->load($i);
-            }
-            
-        } else {
-
-            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-
-            if ($id == null) {
-                $content = $this->service->findAll();
-            } else {
-                $content = $this->service->load($id);
-            }
-        }
+        list ($applicationName, $entity, $id) = explode('/', $uri, 3);
         
-        $res->addHeader('Content-Type', 'application/json');
-        $res->setContent(json_encode($content));
-    }
-
-    /**
-     * (non-PHPdoc)
-     *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPost()
-     */
-    public function doPost(Request $req, Response $res)
-    {
-        $res->addHeader('Content-Type', 'application/json');
-        $res->setContent(json_encode($content));
+        // set the base URL for rendering images/thumbnails
+        $this->service->setBaseUrl($this->getBaseUrl($req));
+        $thumbnailPath = $this->service->thumbnail($id);
+        
+        // check of the file exists, if yes, return the thumbnail image
+        if (file_exists($thumbnailPath)) {
+            $res->addHeader('Content-Type', 'image/png');
+            $res->setContent(file_get_contents($thumbnailPath));
+        }
     }
 }

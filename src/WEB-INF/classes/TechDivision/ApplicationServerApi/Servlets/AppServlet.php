@@ -13,7 +13,9 @@ namespace TechDivision\ApplicationServerApi\Servlets;
 
 use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ServletContainer\Interfaces\Response;
+use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
+use TechDivision\ApplicationServerApi\Service\AppService;
 
 /**
  *
@@ -27,11 +29,29 @@ class AppServlet extends AbstractServlet
 {
 
     /**
-     * Class name of the persistence container proxy that handles the data.
+     * Assmbler to assemble app nodes to stdClass representation.
      *
-     * @var string
+     * @var \TechDivision\ApplicationServerApi\Service\AppService
      */
-    const SERVICE_CLASS = 'TechDivision\ApplicationServer\Api\AppService';
+    protected $service;
+
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     */
+    public function init(ServletConfig $config)
+    {
+        
+        // call parent init method
+        parent::init($config);
+        
+        // create a new service instance 
+        $initialContext = $this->getInitialContext();
+        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\AppService', array(
+            $initialContext
+        ));
+    }
 
     /**
      * (non-PHPdoc)
@@ -41,25 +61,26 @@ class AppServlet extends AbstractServlet
     public function doGet(Request $req, Response $res)
     {
         $uri = trim($req->getUri(), '/');
-
-        list ($applicationName, $entity, $id) = explode('/', $uri);
-
+        
         if ($ids = $req->getParameter('ids')) {
-
+            
             $content = array();
-
+            
             foreach ($ids as $id) {
-                $content[] = $this->getService(self::SERVICE_CLASS)->load($i);
+                $content[] = $this->service->load($id);
             }
+            
         } else {
-
+        
+            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
+            
             if ($id == null) {
-                $content = $this->getService(self::SERVICE_CLASS)->findAll();
+                $content = $this->service->findAll();
             } else {
-                $content = $this->getService(self::SERVICE_CLASS)->load($id);
+                $content = $this->service->load($id);
             }
         }
-
+        
         $res->addHeader('Content-Type', 'application/json');
         $res->setContent(json_encode($content));
     }
@@ -71,17 +92,15 @@ class AppServlet extends AbstractServlet
      */
     public function doPost(Request $req, Response $res)
     {
-        $uri = trim($req->getUri(), '/');
+        
         $part = $req->getPart('file');
-
-        file_put_contents("/opt/appserver/webapps/{$part->getFilename()}", $part->getInputStream());
-
-        list ($name, $version) = explode('-', basename($part->getFilename(), '.phar'));
-
+        
+        file_put_contents("/opt/appserver/deploy/{$part->getFilename()}", $part->getInputStream());
+        
         $application = new \stdClass();
-        $application->name = $name;
-
-        $this->getService(self::SERVICE_CLASS)->create($application);
+        $application->name = $part->getFilename();
+        
+        $this->service->create($application);
     }
 
     /**
@@ -91,9 +110,8 @@ class AppServlet extends AbstractServlet
      */
     public function doPut(Request $req, Response $res)
     {
-        $uri = trim($req->getUri(), '/');
         $content = json_decode($req->getContent());
-        $this->getService(self::SERVICE_CLASS)->update($content);
+        $this->service->update($content);
     }
 
     /**
@@ -104,7 +122,7 @@ class AppServlet extends AbstractServlet
     public function doDelete(Request $req, Response $res)
     {
         $uri = trim($req->getUri(), '/');
-        list ($applicationName, $entity, $id) = explode('/', $uri);
-        $this->getService(self::SERVICE_CLASS)->delete($id);
+        list ($applicationName, $entity, $id) = explode('/', $uri, 3);
+        $this->service->delete($id);
     }
 }
