@@ -41,6 +41,13 @@ class AppService extends AbstractService
      * @var string
      */
     const THUMBNAIL = 'app-thumbnail.png';
+    
+    /**
+     * The thumbnail placeholder image name.
+     * 
+     * @var string
+     */
+    const THUMBNAIL_PLACEHOLDER = 'app-placeholder-300x200.png';
 
     /**
      * Returns all app nodes registered in system configuration.
@@ -123,6 +130,16 @@ class AppService extends AbstractService
      */
     protected function getThumbnailPath(AppNode $appNode)
     {
-        return $appNode->getWebappPath() . DIRECTORY_SEPARATOR . 'WEB-INF' . DIRECTORY_SEPARATOR . self::THUMBNAIL;
+        
+        // prepare the thumbnail path of the passed app node
+        $thumbnailPath = $appNode->getWebappPath() . DIRECTORY_SEPARATOR . 'WEB-INF' . DIRECTORY_SEPARATOR . self::THUMBNAIL;
+        
+        // check if the app contains a thumbnail in it's WEB-INF folder
+        if (file_exists($thumbnailPath)) {
+            return $thumbnailPath;
+        }
+        
+        // if not, return the placeholder thumbnail
+        return $this->getConfigurationPath() . DIRECTORY_SEPARATOR . self::THUMBNAIL_PLACEHOLDER;
     }
 }
