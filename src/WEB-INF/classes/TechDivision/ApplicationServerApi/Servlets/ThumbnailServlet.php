@@ -14,8 +14,12 @@ namespace TechDivision\ApplicationServerApi\Servlets;
 use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ServletContainer\Interfaces\Response;
 use TechDivision\ServletContainer\Interfaces\ServletConfig;
-use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
+use TechDivision\ServletContainer\Utilities\MimeTypeDictionary;
+use TechDivision\ServletContainer\Exceptions\FileNotFoundException;
+use TechDivision\ServletContainer\Exceptions\FileNotReadableException;
+use TechDivision\ServletContainer\Exceptions\FoundDirInsteadOfFileException;
 use TechDivision\ApplicationServerApi\Service\AppService;
+use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
 
 /**
  *
@@ -36,6 +40,13 @@ class ThumbnailServlet extends AbstractServlet
     protected $service;
 
     /**
+     * Hold dictionary for mimetypes
+     *
+     * @var MimeTypeDictionary
+     */
+    protected $mimeTypeDictionary;
+
+    /**
      * (non-PHPdoc)
      *
      * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
@@ -45,6 +56,9 @@ class ThumbnailServlet extends AbstractServlet
         
         // call parent init method
         parent::init($config);
+        
+        // initialize the mimetype dictonary
+        $this->mimeTypeDictionary = new MimeTypeDictionary();
         
         // create a new service instance 
         $initialContext = $this->getInitialContext();
@@ -67,12 +81,44 @@ class ThumbnailServlet extends AbstractServlet
         
         // set the base URL for rendering images/thumbnails
         $this->service->setBaseUrl($this->getBaseUrl($req));
-        $thumbnailPath = $this->service->thumbnail($id);
-        
-        // check of the file exists, if yes, return the thumbnail image
-        if (file_exists($thumbnailPath)) {
-            $res->addHeader('Content-Type', 'image/png');
-            $res->setContent(file_get_contents($thumbnailPath));
+        $this->service->setConfigurationPath($this->getConfigurationPath());
+
+        // load file information and return the file object if possible
+        $fileInfo = new \SplFileInfo($path = $this->service->thumbnail($id));
+        if ($fileInfo->isDir()) {
+            throw new FoundDirInsteadOfFileException(sprintf("Requested file %s is a directory", $path));
         }
+        if ($fileInfo->isFile() === false) {
+            throw new FileNotFoundException(sprintf('File %s not not found', $path));
+        }
+        if ($fileInfo->isReadable() === false) {
+            throw new FileNotReadableException(sprintf('File %s is not readable', $path));
+        }
+        
+        // open the file itself
+        $file = $fileInfo->openFile();
+            
+        // set mimetypes to header
+        $res->addHeader('Content-Type', $this->mimeTypeDictionary->find(pathinfo($file->getFilename(), PATHINFO_EXTENSION)));
+        
+        // set last modified date from file
+        $res->addHeader('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $file->getMTime()));
+        
+        // set expires date
+        $res->addHeader('Expires', gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
+        
+        // check if If-Modified-Since header info is set
+        if ($req->getHeader('If-Modified-Since')) {
+            // check if file is modified since header given header date
+            if (strtotime($req->getHeader('If-Modified-Since')) >= $file->getMTime()) {
+                // send 304 Not Modified Header information without content
+                $res->addHeader('status', 'HTTP/1.1 304 Not Modified');
+                $res->getContent(PHP_EOL);
+                return;
+            }
+        }
+        
+        // add the thumbnail as response content
+        $res->setContent(file_get_contents($file->getRealPath()));
     }
 }

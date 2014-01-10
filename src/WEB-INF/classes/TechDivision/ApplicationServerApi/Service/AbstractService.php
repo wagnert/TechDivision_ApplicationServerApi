@@ -39,6 +39,13 @@ class AbstractService
     protected $baseUrl;
     
     /**
+     * The path to the admin WEB-INF configuration path.
+     * 
+     * @var string
+     */
+    protected $configurationPath;
+    
+    /**
      * The initial context instance passed from the servlet.
      * 
      * @param InitialContext $initialContext The initial context instance
@@ -136,5 +143,26 @@ class AbstractService
     public function getBaseUrl()
     {
         return $this->baseUrl;
+    }
+    
+    /**
+     * The path to the admin WEB-INF configuration path.
+     * 
+     * @param string $baseUrl The app's configuration path
+     * @return void
+     */
+    public function setConfigurationPath($configurationPath)
+    {
+        $this->configurationPath = $configurationPath;
+    }
+    
+    /**
+     * Return's the path to the admin WEB-INF configuration path.
+     * 
+     * @return string The app's configuration path
+     */
+    public function getConfigurationPath()
+    {
+        return $this->configurationPath;
     }
 }

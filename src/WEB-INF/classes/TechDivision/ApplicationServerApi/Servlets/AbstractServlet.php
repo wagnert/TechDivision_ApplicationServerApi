@@ -82,6 +82,16 @@ abstract class AbstractServlet extends HttpServlet implements Servlet
     }
 
     /**
+     * Returns the absolute path to the WEB-INF configuration folder.
+     * 
+     * @return string The path to the configuration folder
+     */
+    public function getConfigurationPath()
+    {
+        return $this->getWebappPath() . DIRECTORY_SEPARATOR . 'WEB-INF';
+    }
+    
+    /**
      * Returns the application's base URL for html base tag
      *
      * @return string The application's base URL
