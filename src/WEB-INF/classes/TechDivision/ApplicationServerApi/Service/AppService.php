@@ -111,7 +111,7 @@ class AppService extends AbstractService
      * @param string $id ID of the app to return the thumbnail for
      * @return string The absolute path the thumbnail
      */
-    public function thumbnail($id, $configurationPath)
+    public function thumbnail($id)
     {
         
         // load the application with the requested ID
