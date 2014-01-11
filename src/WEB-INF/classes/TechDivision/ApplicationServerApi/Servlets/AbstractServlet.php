@@ -11,12 +11,9 @@
  */
 namespace TechDivision\ApplicationServerApi\Servlets;
 
-use TechDivision\ServletContainer\Interfaces\Servlet;
 use TechDivision\ServletContainer\Servlets\HttpServlet;
 use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ServletContainer\Interfaces\Request;
-use TechDivision\ServletContainer\Interfaces\Response;
-use TechDivision\PersistenceContainerClient\Context\Connection\Factory;
 use TechDivision\ApplicationServer\InitialContext;
 
 /**
@@ -27,7 +24,7 @@ use TechDivision\ApplicationServer\InitialContext;
  *          Open Software License (OSL 3.0)
  * @author Tim Wagner <tw@techdivision.com>
  */
-abstract class AbstractServlet extends HttpServlet implements Servlet
+abstract class AbstractServlet extends HttpServlet
 {
 
     /**
