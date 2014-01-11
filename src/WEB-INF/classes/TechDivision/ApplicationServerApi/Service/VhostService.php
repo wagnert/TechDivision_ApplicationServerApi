@@ -55,6 +55,9 @@ class VhostService extends AbstractService
         // convert the vhost nodes into stdClass representation
         foreach ($containerNodes as $containerNode) {
             
+            // load the receiver information
+            $receiverNode = $containerNode->getReceiver();
+            
             // load the host node and iterate over all vhost nodes
             $hostNode = $containerNode->getHost();
             foreach ($hostNode->getVhosts() as $vhostNode) {
@@ -65,6 +68,13 @@ class VhostService extends AbstractService
                 
                 // create the vhost stdClass representation
                 $vhost = $vhostNode->toStdClass();
+                
+                // add container name
+                $vhost->container_name = $containerNode->getName();
+                
+                // add address/port number
+                $vhost->address = $receiverNode->getParam('address');
+                $vhost->port = $receiverNode->getParam('port');
                 
                 // try to load the vhost's app node
                 if (array_key_exists($baseDirectory, $appNodes)) {
