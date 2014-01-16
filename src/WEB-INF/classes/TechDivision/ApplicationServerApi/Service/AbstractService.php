@@ -66,16 +66,22 @@ class AbstractService
     }
     
     /**
-     * 
+     * Initializes the stdClass representation of the configuration node with
+     * the ID passed as parameter.
+     *
      * @param string $id
+     *            The ID of the requested configuration node
+     * @return \stdClass The app node as \stdClass representation
      */
     public function load($id)
     {
         throw new \Exception(__METHOD__ . ' not implemented');
     }
-    
+
     /**
-     * 
+     * Returns all configuration nodes registered in system configuration.
+     *
+     * @return \stdClass A \stdClass representation of the configuration nodes
      */
     public function findAll()
     {
@@ -101,8 +107,11 @@ class AbstractService
     }
     
     /**
+     * Deletes the configuration node with the passed ID
+     * from the system configuration.
      * 
-     * @param string $id
+     * @param string $id The ID of the configuration node to delete
+     * @return void
      */
     public function delete($id)
     {

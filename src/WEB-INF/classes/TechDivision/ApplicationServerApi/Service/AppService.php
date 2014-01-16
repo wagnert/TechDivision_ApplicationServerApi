@@ -50,9 +50,9 @@ class AppService extends AbstractService
     const THUMBNAIL_PLACEHOLDER = 'app-placeholder-300x200.png';
 
     /**
-     * Returns all app nodes registered in system configuration.
-     *
-     * @return \stdClass A \stdClass representation of the app nodes
+     * (non-PHPdoc)
+     * 
+     * @see \TechDivision\ApplicationServerApi\Service\AbstractService::findAll()
      */
     public function findAll()
     {
@@ -74,12 +74,9 @@ class AppService extends AbstractService
     }
 
     /**
-     * Initializes the stdClass representation of the app node with
-     * the ID passed as parameter.
-     *
-     * @param string $id
-     *            The ID of the requested app node
-     * @return \stdClass The app node as \stdClass representation
+     * (non-PHPdoc)
+     * 
+     * @see \TechDivision\ApplicationServerApi\Service\AbstractService::load()
      */
     public function load($id)
     {
@@ -102,6 +99,16 @@ class AppService extends AbstractService
         
         // return the stdClass representation of the app
         return $stdClass;
+    }
+    
+    /**
+     * (non-PHPdoc)
+     * 
+     * @see \TechDivision\ApplicationServerApi\Service\AbstractService::delete()
+     */
+    public function delete($id)
+    {
+        $this->getApi(self::SERVICE_CLASS)->delete($id);
     }
     
     /**
