@@ -16,6 +16,7 @@ use TechDivision\ServletContainer\Interfaces\Response;
 use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
 use TechDivision\ApplicationServerApi\Service\AppService;
+use TechDivision\ApplicationServer\Utilities\DirectoryKeys;
 
 /**
  *
@@ -28,6 +29,13 @@ use TechDivision\ApplicationServerApi\Service\AppService;
 class AppServlet extends AbstractServlet
 {
 
+    /**
+     * Filename of the uploaded file with the webapp PHAR.
+     * 
+     * @var string
+     */
+    const UPLOADED_PHAR_FILE = 'file';
+    
     /**
      * Assmbler to assemble app nodes to stdClass representation.
      *
@@ -93,9 +101,12 @@ class AppServlet extends AbstractServlet
     public function doPost(Request $req, Response $res)
     {
         
-        $part = $req->getPart('file');
+        // load the deploy directory
+        $deployDirectory = $this->getServletConfig()->getApplication()->getBaseDirectory(DIRECTORY_SEPARATOR . DirectoryKeys::DEPLOY);
         
-        file_put_contents("/opt/appserver/deploy/{$part->getFilename()}", $part->getInputStream());
+        // save the uploaded PHAR in the deploy directory
+        $part = $req->getPart(self::UPLOADED_PHAR_FILE);
+        file_put_contents($deployDirectory . DIRECTORY_SEPARATOR . $part->getFilename(), $part->getInputStream());
         
         $application = new \stdClass();
         $application->name = $part->getFilename();
