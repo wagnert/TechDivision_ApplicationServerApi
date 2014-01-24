@@ -31,6 +31,13 @@ use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
  */
 class ThumbnailServlet extends AbstractServlet
 {
+    
+    /**
+     * The service class name to use.
+     * 
+     * @var string
+     */
+    const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\AppService';
 
     /**
      * Assmbler to assemble app nodes to stdClass representation.
@@ -40,9 +47,9 @@ class ThumbnailServlet extends AbstractServlet
     protected $service;
 
     /**
-     * Hold dictionary for mimetypes
+     * Hold dictionary for mime types.
      *
-     * @var MimeTypeDictionary
+     * @var \TechDivision\ServletContainer\Utilities\MimeTypeDictionary
      */
     protected $mimeTypeDictionary;
 
@@ -57,14 +64,36 @@ class ThumbnailServlet extends AbstractServlet
         // call parent init method
         parent::init($config);
         
-        // initialize the mimetype dictonary
-        $this->mimeTypeDictionary = new MimeTypeDictionary();
+        // initialize the mime type dictonary
+        $this->setMimeTypeDictionary(new MimeTypeDictionary());
         
-        // create a new service instance 
+        // create a new service instance
         $initialContext = $this->getInitialContext();
-        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\AppService', array(
+        $this->setService($initialContext->newInstance(ThumbnailServlet::SERVICE_CLASS, array(
             $initialContext
-        ));
+        )));
+    }
+
+    /**
+     * Set's the mime type dictionary to use.
+     *
+     * @param \TechDivision\ServletContainer\Utilities\MimeTypeDictionary $mimeTypeDictionary
+     *            The mime type dictionary to use
+     * @return void
+     */
+    public function setMimeTypeDictionary(MimeTypeDictionary $mimeTypeDictionary)
+    {
+        $this->mimeTypeDictionary = $mimeTypeDictionary;
+    }
+
+    /**
+     * Return's the mime type dictionary to use.
+     *
+     * @return \TechDivision\ServletContainer\Utilities\MimeTypeDictionary The mime type dictionary
+     */
+    public function getMimeTypeDictionary()
+    {
+        return $this->mimeTypeDictionary;
     }
 
     /**
@@ -80,11 +109,11 @@ class ThumbnailServlet extends AbstractServlet
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
         
         // set the base URL for rendering images/thumbnails
-        $this->service->setBaseUrl($this->getBaseUrl($req));
-        $this->service->setConfigurationPath($this->getConfigurationPath());
-
+        $this->getService()->setBaseUrl($this->getBaseUrl($req));
+        $this->getService()->setConfigurationPath($this->getConfigurationPath());
+        
         // load file information and return the file object if possible
-        $fileInfo = new \SplFileInfo($path = $this->service->thumbnail($id));
+        $fileInfo = new \SplFileInfo($path = $this->getService()->thumbnail($id));
         if ($fileInfo->isDir()) {
             throw new FoundDirInsteadOfFileException(sprintf("Requested file %s is a directory", $path));
         }
@@ -97,9 +126,10 @@ class ThumbnailServlet extends AbstractServlet
         
         // open the file itself
         $file = $fileInfo->openFile();
-            
+        
         // set mimetypes to header
-        $res->addHeader('Content-Type', $this->mimeTypeDictionary->find(pathinfo($file->getFilename(), PATHINFO_EXTENSION)));
+        $res->addHeader('Content-Type', $this->getMimeTypeDictionary()
+            ->find(pathinfo($file->getFilename(), PATHINFO_EXTENSION)));
         
         // set last modified date from file
         $res->addHeader('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $file->getMTime()));

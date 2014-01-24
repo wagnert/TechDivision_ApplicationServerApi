@@ -29,6 +29,13 @@ class ContainerServlet extends AbstractServlet
 {
     
     /**
+     * The service class name to use.
+     * 
+     * @var string
+     */
+    const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\ContainerService';
+    
+    /**
      * Assmbler to assemble app nodes to stdClass representation.
      *
      * @var \TechDivision\ApplicationServerApi\Service\ContainerService
@@ -42,11 +49,14 @@ class ContainerServlet extends AbstractServlet
      */
     public function init(ServletConfig $config)
     {
+        // call parent init method
         parent::init($config);
+        
+        // create a new service instance
         $initialContext = $this->getInitialContext();
-        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\ContainerService', array(
+        $this->setService($initialContext->newInstance(ContainerServlet::SERVICE_CLASS, array(
             $initialContext
-        ));
+        )));
     }
 
     /**
@@ -56,30 +66,7 @@ class ContainerServlet extends AbstractServlet
      */
     public function doGet(Request $req, Response $res)
     {
-        
-        $uri = trim($req->getUri(), '/');
-
-        if ($ids = $req->getParameter('ids')) {
-
-            $content = array();
-
-            foreach ($ids as $id) {
-                $content[] = $this->service->load($i);
-            }
-            
-        } else {
-
-            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-
-            if ($id == null) {
-                $content = $this->service->findAll();
-            } else {
-                $content = $this->service->load($id);
-            }
-        }
-
-        $res->addHeader('Content-Type', 'application/json');
-        $res->setContent(json_encode($content));
+        $this->find($req, $res);
     }
 
     /**
@@ -90,7 +77,7 @@ class ContainerServlet extends AbstractServlet
     public function doPost(Request $req, Response $res)
     {
         $content = json_decode($req->getContent());
-        $this->service->create($content);
+        $this->getService()->create($content);
     }
 
     /**
@@ -101,7 +88,7 @@ class ContainerServlet extends AbstractServlet
     public function doPut(Request $req, Response $res)
     {
         $content = json_decode($req->getContent());
-        $this->service->update($content);
+        $this->getService()->update($content);
     }
 
     /**
@@ -113,6 +100,6 @@ class ContainerServlet extends AbstractServlet
     {
         $uri = trim($req->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-        $this->service->delete($id);
+        $this->getService()->delete($id);
     }
 }

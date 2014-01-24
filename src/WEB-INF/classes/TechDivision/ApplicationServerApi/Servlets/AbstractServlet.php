@@ -15,6 +15,8 @@ use TechDivision\ServletContainer\Servlets\HttpServlet;
 use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ApplicationServer\InitialContext;
+use TechDivision\ServletContainer\Interfaces\Response;
+use TechDivision\ApplicationServerApi\Service\Service;
 
 /**
  *
@@ -35,6 +37,13 @@ abstract class AbstractServlet extends HttpServlet
     protected $initialContext;
 
     /**
+     * API Service wrapper.
+     *
+     * @var \TechDivision\ApplicationServerApi\Service\Service
+     */
+    protected $service;
+
+    /**
      * (non-PHPdoc)
      *
      * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
@@ -45,6 +54,68 @@ abstract class AbstractServlet extends HttpServlet
         $this->setInitialContext($this->getServletConfig()
             ->getApplication()
             ->getInitialContext());
+    }
+    
+    /**
+     * Set's the actual service instance to use.
+     * 
+     * @param \TechDivision\ApplicationServerApi\Service\Service $service The service instance to set
+     * @return void
+     */
+    public function setService(Service $service)
+    {
+        $this->service = $service;
+    }
+    
+    /**
+     * Return's the actual service instance to use.
+     * 
+     * @return \TechDivision\ApplicationServerApi\Service\Service The requested service instance
+     */
+    public function getService()
+    {
+        return $this->service;
+    }
+    
+    /**
+     * Generic finder implementation using the actual service instance.
+     * 
+     * @param Request $req The actual request instance
+     * @param Response $res The acual response instance
+     * @return void
+     * @see \TechDivision\ApplicationServerApi\Service\Service::load();
+     * @see \TechDivision\ApplicationServerApi\Service\Service::findAll();
+     */
+    public function find(Request $req, Response $res)
+    {
+
+        // load the requested URI
+        $uri = trim($req->getUri(), '/');
+        
+        // first check if a collection of ID's has been requested
+        if ($ids = $req->getParameter('ids')) {
+        
+            // load all entities with the passed ID's
+            $content = array();
+            foreach ($ids as $id) {
+                $content[] = $this->getService()->load($id);
+            }
+        
+            // then check if all entities has to be loaded or exactly one
+        } else {
+        
+            // extract the ID of available, and load the requested OR all entities
+            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
+            if ($id == null) {
+                $content = $this->getService()->findAll();
+            } else {
+                $content = $this->getService()->load($id);
+            }
+        }
+        
+        // set the JSON encoded data in the response
+        $res->addHeader('Content-Type', 'application/json');
+        $res->setContent(json_encode($content));
     }
 
     /**

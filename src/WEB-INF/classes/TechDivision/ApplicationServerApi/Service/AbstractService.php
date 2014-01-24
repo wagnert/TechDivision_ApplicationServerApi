@@ -21,7 +21,7 @@ use TechDivision\ApplicationServer\InitialContext;
  *          Open Software License (OSL 3.0)
  * @author Tim <tw@techdivision.com>
  */
-class AbstractService
+class AbstractService implements Service
 {
 
     /**
