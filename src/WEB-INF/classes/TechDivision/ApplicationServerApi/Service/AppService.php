@@ -134,7 +134,7 @@ class AppService extends AbstractService
      */
     public function delete($id)
     {
-        $this->getApi(self::SERVICE_CLASS)->delete($id);
+        $this->getApi(self::SERVICE_CLASS)->undeploy($id);
     }
     
     /**
