@@ -27,13 +27,13 @@ use TechDivision\ApplicationServerApi\Service\VhostService;
  */
 class VhostServlet extends AbstractServlet
 {
-
+    
     /**
-     * Service to to handle vhost nodes.
-     *
-     * @var \TechDivision\ApplicationServerApi\Service\VhostService
+     * The service class name to use.
+     * 
+     * @var string
      */
-    protected $service;
+    const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\VhostService';
 
     /**
      * (non-PHPdoc)
@@ -42,11 +42,14 @@ class VhostServlet extends AbstractServlet
      */
     public function init(ServletConfig $config)
     {
+        // call parent init method
         parent::init($config);
+        
+        // create a new service instance
         $initialContext = $this->getInitialContext();
-        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\VhostService', array(
+        $this->setService($initialContext->newInstance(VhostServlet::SERVICE_CLASS, array(
             $initialContext
-        ));
+        )));
     }
 
     /**
@@ -56,30 +59,7 @@ class VhostServlet extends AbstractServlet
      */
     public function doGet(Request $req, Response $res)
     {
-        
-        $uri = trim($req->getUri(), '/');
-
-        if ($ids = $req->getParameter('ids')) {
-
-            $content = array();
-
-            foreach ($ids as $id) {
-                $content[] = $this->service->load($i);
-            }
-            
-        } else {
-
-            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-
-            if ($id == null) {
-                $content = $this->service->findAll();
-            } else {
-                $content = $this->service->load($id);
-            }
-        }
-        
-        $res->addHeader('Content-Type', 'application/json');
-        $res->setContent(json_encode($content));
+        $this->find($req, $res);
     }
 
     /**

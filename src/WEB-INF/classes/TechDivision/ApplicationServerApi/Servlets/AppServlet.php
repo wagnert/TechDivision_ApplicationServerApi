@@ -16,6 +16,7 @@ use TechDivision\ServletContainer\Interfaces\Response;
 use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
 use TechDivision\ApplicationServerApi\Service\AppService;
+use TechDivision\ApplicationServer\Utilities\DirectoryKeys;
 
 /**
  *
@@ -29,11 +30,18 @@ class AppServlet extends AbstractServlet
 {
 
     /**
-     * Assmbler to assemble app nodes to stdClass representation.
+     * Filename of the uploaded file with the webapp PHAR.
      *
-     * @var \TechDivision\ApplicationServerApi\Service\AppService
+     * @var string
      */
-    protected $service;
+    const UPLOADED_PHAR_FILE = 'file';
+
+    /**
+     * The service class name to use.
+     *
+     * @var string
+     */
+    const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\AppService';
 
     /**
      * (non-PHPdoc)
@@ -46,11 +54,11 @@ class AppServlet extends AbstractServlet
         // call parent init method
         parent::init($config);
         
-        // create a new service instance 
+        // create a new service instance
         $initialContext = $this->getInitialContext();
-        $this->service = $initialContext->newInstance('\TechDivision\ApplicationServerApi\Service\AppService', array(
+        $this->setService($initialContext->newInstance(AppServlet::SERVICE_CLASS, array(
             $initialContext
-        ));
+        )));
     }
 
     /**
@@ -60,29 +68,7 @@ class AppServlet extends AbstractServlet
      */
     public function doGet(Request $req, Response $res)
     {
-        $uri = trim($req->getUri(), '/');
-        
-        if ($ids = $req->getParameter('ids')) {
-            
-            $content = array();
-            
-            foreach ($ids as $id) {
-                $content[] = $this->service->load($id);
-            }
-            
-        } else {
-        
-            list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-            
-            if ($id == null) {
-                $content = $this->service->findAll();
-            } else {
-                $content = $this->service->load($id);
-            }
-        }
-        
-        $res->addHeader('Content-Type', 'application/json');
-        $res->setContent(json_encode($content));
+        $this->find($req, $res);
     }
 
     /**
@@ -92,15 +78,7 @@ class AppServlet extends AbstractServlet
      */
     public function doPost(Request $req, Response $res)
     {
-        
-        $part = $req->getPart('file');
-        
-        file_put_contents("/opt/appserver/deploy/{$part->getFilename()}", $part->getInputStream());
-        
-        $application = new \stdClass();
-        $application->name = $part->getFilename();
-        
-        $this->service->create($application);
+        $this->getService()->upload($req->getPart(AppServlet::UPLOADED_PHAR_FILE));
     }
 
     /**
@@ -111,7 +89,7 @@ class AppServlet extends AbstractServlet
     public function doPut(Request $req, Response $res)
     {
         $content = json_decode($req->getContent());
-        $this->service->update($content);
+        $this->getService()->update($content);
     }
 
     /**
@@ -123,6 +101,6 @@ class AppServlet extends AbstractServlet
     {
         $uri = trim($req->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-        $this->service->delete($id);
+        $this->getService()->delete($id);
     }
 }
