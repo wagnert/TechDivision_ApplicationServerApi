@@ -16,6 +16,9 @@ use TechDivision\ServletContainer\Interfaces\Response;
 use TechDivision\ApplicationServerApi\Service\AbstractService;
 use TechDivision\ApplicationServerApi\Service\ContainerService;
 use TechDivision\ApplicationServer\Api\Node\AppNode;
+use TechDivision\ServletContainer\Http\HttpPart;
+use TechDivision\ApplicationServer\Extractors\PharExtractor;
+use TechDivision\ApplicationServer\Interfaces\ExtractorInterface;
 
 /**
  *
@@ -99,6 +102,29 @@ class AppService extends AbstractService
         
         // return the stdClass representation of the app
         return $stdClass;
+    }
+    
+    /**
+     * Uploads the passed file to the application servers deploy
+     * directory.
+     *  
+     * @param \TechDivision\ServletContainer\Http\HttpPart $part The file data
+     * @return void
+     */
+    public function upload(HttpPart $part)
+    {
+        
+        // prepare service instance
+        $api = $this->getApi(self::SERVICE_CLASS);
+        
+        // prepare the upload target in the deploy directory
+        $target = $api->getTmpDir() . DIRECTORY_SEPARATOR . $part->getFilename();
+        
+        // save the uploaded file in the tmp directory
+        file_put_contents($target, $part->getInputStream());
+        
+        // let the API soak the archive
+        $api->soak(new \SplFileInfo($target));
     }
     
     /**

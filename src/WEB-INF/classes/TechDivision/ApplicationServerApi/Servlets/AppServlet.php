@@ -35,10 +35,10 @@ class AppServlet extends AbstractServlet
      * @var string
      */
     const UPLOADED_PHAR_FILE = 'file';
-    
+
     /**
      * The service class name to use.
-     * 
+     *
      * @var string
      */
     const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\AppService';
@@ -78,22 +78,7 @@ class AppServlet extends AbstractServlet
      */
     public function doPost(Request $req, Response $res)
     {
-        
-        // load the deploy directory
-        $deployDirectory = $this->getServletConfig()
-            ->getApplication()
-            ->getBaseDirectory(DIRECTORY_SEPARATOR . DirectoryKeys::DEPLOY);
-        
-        // save the uploaded PHAR in the deploy directory
-        $part = $req->getPart(AppServlet::UPLOADED_PHAR_FILE);
-        file_put_contents($deployDirectory . DIRECTORY_SEPARATOR . $part->getFilename(), $part->getInputStream());
-        
-        // create a new \stdClass instance
-        $application = $this->getInitialContext()->newInstance('\stdClass');
-        $application->name = $part->getFilename();
-        
-        // create a new web app
-        $this->getService()->create($application);
+        $this->getService()->upload($req->getPart(AppServlet::UPLOADED_PHAR_FILE));
     }
 
     /**
