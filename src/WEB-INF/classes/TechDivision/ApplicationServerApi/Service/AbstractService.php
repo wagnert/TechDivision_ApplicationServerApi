@@ -8,18 +8,31 @@
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Service
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 namespace TechDivision\ApplicationServerApi\Service;
 
 use TechDivision\ApplicationServer\InitialContext;
 
 /**
- *
- * @package TechDivision\ApplicationServerApi
- * @copyright Copyright (c) 2013 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim <tw@techdivision.com>
+ * Abstract service class that provides some basic service functionality.
+ * 
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Service
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 class AbstractService implements Service
 {
@@ -49,6 +62,8 @@ class AbstractService implements Service
      * The initial context instance passed from the servlet.
      * 
      * @param InitialContext $initialContext The initial context instance
+     * 
+     * @return void
      */
     public function __construct(InitialContext $initialContext)
     {
@@ -69,9 +84,10 @@ class AbstractService implements Service
      * Initializes the stdClass representation of the configuration node with
      * the ID passed as parameter.
      *
-     * @param string $id
-     *            The ID of the requested configuration node
+     * @param string $id The ID of the requested configuration node
+     * 
      * @return \stdClass The app node as \stdClass representation
+     * @throws \Exception Is thrown if the method has not been implemented
      */
     public function load($id)
     {
@@ -82,6 +98,7 @@ class AbstractService implements Service
      * Returns all configuration nodes registered in system configuration.
      *
      * @return \stdClass A \stdClass representation of the configuration nodes
+     * @throws \Exception Is thrown if the method has not been implemented
      */
     public function findAll()
     {
@@ -89,8 +106,12 @@ class AbstractService implements Service
     }
     
     /**
+     * Creates a new instance of the passed entity.
      * 
-     * @param \stdClass $toCreate
+     * @param \stdClass $toCreate The data of the entity to be created
+     * 
+     * @return void
+     * @throws \Exception Is thrown if the method has not been implemented
      */
     public function create(\stdClass $toCreate)
     {
@@ -98,8 +119,12 @@ class AbstractService implements Service
     }
     
     /**
+     * Updates the passed entity.
      * 
-     * @param \stdClass $toUpdate
+     * @param \stdClass $toUpdate The data of the entity to update
+     * 
+     * @return void
+     * @throws \Exception Is thrown if the method has not been implemented
      */
     public function update(\stdClass $toUpdate)
     {
@@ -111,6 +136,7 @@ class AbstractService implements Service
      * from the system configuration.
      * 
      * @param string $id The ID of the configuration node to delete
+     * 
      * @return void
      */
     public function delete($id)
@@ -122,8 +148,8 @@ class AbstractService implements Service
      * Creates a new instance of the passed API class name
      * and returns it.
      *
-     * @param string $apiClass
-     *            The API class name to return the instance for
+     * @param string $apiClass The API class name to return the instance for
+     * 
      * @return \TechDivision\ApplicationServer\Api\ServiceInterface The API instance
      */
     public function getApi($apiClass)
@@ -137,6 +163,7 @@ class AbstractService implements Service
      * The base URL for rendering images/thumbnails.
      * 
      * @param string $baseUrl The base URL
+     * 
      * @return void
      */
     public function setBaseUrl($baseUrl)
@@ -145,7 +172,7 @@ class AbstractService implements Service
     }
     
     /**
-     * Return's the base URL for rendering images/thumbnails.
+     * Returns the base URL for rendering images/thumbnails.
      * 
      * @return string The base URL
      */
@@ -157,7 +184,8 @@ class AbstractService implements Service
     /**
      * The path to the admin WEB-INF configuration path.
      * 
-     * @param string $baseUrl The app's configuration path
+     * @param string $configurationPath The apps configuration path
+     * 
      * @return void
      */
     public function setConfigurationPath($configurationPath)
@@ -168,7 +196,7 @@ class AbstractService implements Service
     /**
      * Return's the path to the admin WEB-INF configuration path.
      * 
-     * @return string The app's configuration path
+     * @return string The apps configuration path
      */
     public function getConfigurationPath()
     {

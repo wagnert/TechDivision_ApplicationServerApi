@@ -8,25 +8,32 @@
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Service
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 namespace TechDivision\ApplicationServerApi\Service;
 
-use TechDivision\ServletContainer\Interfaces\Request;
-use TechDivision\ServletContainer\Interfaces\Response;
-use TechDivision\ApplicationServerApi\Service\AbstractService;
-use TechDivision\ApplicationServerApi\Service\ContainerService;
 use TechDivision\ApplicationServer\Api\Node\AppNode;
 use TechDivision\ServletContainer\Http\HttpPart;
-use TechDivision\ApplicationServer\Extractors\PharExtractor;
-use TechDivision\ApplicationServer\Interfaces\ExtractorInterface;
 
 /**
- *
- * @package TechDivision\ApplicationServerApi
- * @copyright Copyright (c) 2013 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim <tw@techdivision.com>
+ * Service implementation that handles all app related functionality.
+ * 
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Service
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 class AppService extends AbstractService
 {
@@ -53,8 +60,9 @@ class AppService extends AbstractService
     const THUMBNAIL_PLACEHOLDER = 'app-placeholder-300x200.png';
 
     /**
-     * (non-PHPdoc)
-     * 
+     * Returns all app nodes registered in system configuration.
+     *
+     * @return \stdClass A \stdClass representation of the app nodes
      * @see \TechDivision\ApplicationServerApi\Service\AbstractService::findAll()
      */
     public function findAll()
@@ -77,8 +85,11 @@ class AppService extends AbstractService
     }
 
     /**
-     * (non-PHPdoc)
+     * Returns the app with the passed ID from the system configuration.
      * 
+     * @param string $id The ID of the app node to be returned
+     * 
+     * @return \stdClass A \stdClass representation of the app node
      * @see \TechDivision\ApplicationServerApi\Service\AbstractService::load()
      */
     public function load($id)
@@ -105,10 +116,10 @@ class AppService extends AbstractService
     }
     
     /**
-     * Uploads the passed file to the application servers deploy
-     * directory.
+     * Uploads the passed file to the application servers deploy directory.
      *  
      * @param \TechDivision\ServletContainer\Http\HttpPart $part The file data
+     * 
      * @return void
      */
     public function upload(HttpPart $part)
@@ -128,8 +139,11 @@ class AppService extends AbstractService
     }
     
     /**
-     * (non-PHPdoc)
+     * Deletes the app node with the passed ID from the system configuration.
      * 
+     * @param string $id The ID of the app node to delete
+     * 
+     * @return void
      * @see \TechDivision\ApplicationServerApi\Service\AbstractService::delete()
      */
     public function delete($id)
@@ -142,6 +156,7 @@ class AppService extends AbstractService
      * passed ID.
      * 
      * @param string $id ID of the app to return the thumbnail for
+     * 
      * @return string The absolute path the thumbnail
      */
     public function thumbnail($id)
@@ -157,8 +172,8 @@ class AppService extends AbstractService
     /**
      * Returns the full path to the app's thumbnail.
      *
-     * @param AppNode $appNode
-     *            The app node to return the thumbnail path for
+     * @param AppNode $appNode The app node to return the thumbnail path for
+     * 
      * @return string The absolute path to the app's thumbnail
      */
     protected function getThumbnailPath(AppNode $appNode)

@@ -8,23 +8,37 @@
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Servlets
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
+
 namespace TechDivision\ApplicationServerApi\Servlets;
 
-use TechDivision\ServletContainer\Interfaces\Request;
-use TechDivision\ServletContainer\Interfaces\Response;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
 use TechDivision\ApplicationServerApi\Service\AppService;
 use TechDivision\ApplicationServer\Utilities\DirectoryKeys;
+use TechDivision\ServletContainer\Http\ServletRequest;
+use TechDivision\ServletContainer\Http\ServletResponse;
+use TechDivision\ServletContainer\Interfaces\ServletConfig;
 
 /**
- *
- * @package TechDivision\ApplicationServerApi
- * @copyright Copyright (c) 2013 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim <tw@techdivision.com>
+ * Servlet that handles all app related requests.
+ * 
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Servlets
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 class AppServlet extends AbstractServlet
 {
@@ -44,8 +58,11 @@ class AppServlet extends AbstractServlet
     const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\AppService';
 
     /**
-     * (non-PHPdoc)
+     * Initializes the servlet when the application server starts.
      *
+     * @param \TechDivision\ServletContainer\Interfaces\ServletConfig $config The servlet configuration
+     *
+     * @return void
      * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
      */
     public function init(ServletConfig $config)
@@ -56,50 +73,71 @@ class AppServlet extends AbstractServlet
         
         // create a new service instance
         $initialContext = $this->getInitialContext();
-        $this->setService($initialContext->newInstance(AppServlet::SERVICE_CLASS, array(
-            $initialContext
-        )));
+        $this->setService(
+            $initialContext->newInstance(
+                AppServlet::SERVICE_CLASS,
+                array(
+                    $initialContext
+                )
+            )
+        );
     }
 
     /**
-     * (non-PHPdoc)
+     * Tries to load the requested apps and adds them to the response.
      *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doGet()
+     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * 
+     * @return void
+     * @see \TechDivision\ServletContainer\Interfaces\Servlet::doGet()
      */
-    public function doGet(Request $req, Response $res)
+    public function doGet(ServletRequest $servletRequest, ServletResponse $servletResponse)
     {
         $this->find($req, $res);
     }
 
     /**
-     * (non-PHPdoc)
+     * Creates a new app.
      *
+     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * 
+     * @return void
      * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPost()
      */
-    public function doPost(Request $req, Response $res)
+    public function doPost(ServletRequest $servletRequest, ServletResponse $servletResponse)
     {
-        $this->getService()->upload($req->getPart(AppServlet::UPLOADED_PHAR_FILE));
+        $this->getService()->upload($servletRequest->getPart(AppServlet::UPLOADED_PHAR_FILE));
     }
 
     /**
-     * (non-PHPdoc)
+     * Updates the app with the passed content.
      *
+     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * 
+     * @return void
      * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPut()
      */
-    public function doPut(Request $req, Response $res)
+    public function doPut(ServletRequest $servletRequest, ServletResponse $servletResponse)
     {
-        $content = json_decode($req->getContent());
+        $content = json_decode($servletRequest->getContent());
         $this->getService()->update($content);
     }
 
     /**
-     * (non-PHPdoc)
+     * Delete the requested app.
      *
+     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * 
+     * @return void
      * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doDelete()
      */
-    public function doDelete(Request $req, Response $res)
+    public function doDelete(ServletRequest $servletRequest, ServletResponse $servletResponse)
     {
-        $uri = trim($req->getUri(), '/');
+        $uri = trim($servletRequest->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
         $this->getService()->delete($id);
     }

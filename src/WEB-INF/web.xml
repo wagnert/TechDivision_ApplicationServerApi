@@ -34,7 +34,7 @@
     
     <servlet-mapping>
         <servlet-name>VhostServlet</servlet-name>
-        <url-pattern>/vhosts*</url-pattern>
+        <url-pattern>/vhosts/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -44,7 +44,7 @@
     
     <servlet-mapping>
         <servlet-name>ContainerServlet</servlet-name>
-        <url-pattern>/containers*</url-pattern>
+        <url-pattern>/containers/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -54,7 +54,7 @@
     
     <servlet-mapping>
         <servlet-name>AppServlet</servlet-name>
-        <url-pattern>/apps*</url-pattern>
+        <url-pattern>/apps/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -64,7 +64,7 @@
     
     <servlet-mapping>
         <servlet-name>ThumbnailServlet</servlet-name>
-        <url-pattern>/thumbnails*</url-pattern>
+        <url-pattern>/thumbnails/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
