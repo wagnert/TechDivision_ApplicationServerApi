@@ -22,11 +22,9 @@
 
 namespace TechDivision\ApplicationServerApi\Servlets;
 
-use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
-use TechDivision\ApplicationServerApi\Service\VhostService;
-use TechDivision\ServletContainer\Http\ServletRequest;
-use TechDivision\ServletContainer\Http\ServletResponse;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
+use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\Http\HttpServletRequest;
+use TechDivision\Servlet\Http\HttpServletResponse;
 
 /**
  * Servlet that handles all vhost related requests.
@@ -52,10 +50,10 @@ class VhostServlet extends AbstractServlet
     /**
      * Initializes the servlet when the application server starts.
      *
-     * @param \TechDivision\ServletContainer\Interfaces\ServletConfig $config The servlet configuration
+     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
      *
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     * @see \TechDivision\Servlet\GenericServlet::init()
      */
     public function init(ServletConfig $config)
     {
@@ -78,13 +76,13 @@ class VhostServlet extends AbstractServlet
     /**
      * Tries to load the requested vhosts and adds them to the response.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Interfaces\Servlet::doGet()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doGet()
      */
-    public function doGet(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doGet(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $this->find($servletRequest, $servletResponse);
     }

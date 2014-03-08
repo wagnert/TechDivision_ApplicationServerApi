@@ -22,15 +22,15 @@
 
 namespace TechDivision\ApplicationServerApi\Servlets;
 
+use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\Http\HttpServletRequest;
+use TechDivision\Servlet\Http\HttpServletResponse;
+use TechDivision\WebServer\Dictionaries\MimeType;
 use TechDivision\ApplicationServerApi\Service\AppService;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
-use TechDivision\ServletContainer\Http\ServletRequest;
-use TechDivision\ServletContainer\Http\ServletResponse;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
-use TechDivision\ServletContainer\Utilities\MimeTypeDictionary;
-use TechDivision\ServletContainer\Exceptions\FileNotFoundException;
-use TechDivision\ServletContainer\Exceptions\FileNotReadableException;
-use TechDivision\ServletContainer\Exceptions\FoundDirInsteadOfFileException;
+use TechDivision\ApplicationServerApi\Exceptions\FileNotFoundException;
+use TechDivision\ApplicationServerApi\Exceptions\FileNotReadableException;
+use TechDivision\ApplicationServerApi\Exceptions\FoundDirInsteadOfFileException;
 
 /**
  * Servlet that handles all thumbnail related requests.
@@ -61,28 +61,18 @@ class ThumbnailServlet extends AbstractServlet
     protected $service;
 
     /**
-     * Hold dictionary for mime types.
-     *
-     * @var \TechDivision\ServletContainer\Utilities\MimeTypeDictionary
-     */
-    protected $mimeTypeDictionary;
-
-    /**
      * Initializes the servlet when the application server starts.
      *
-     * @param \TechDivision\ServletContainer\Interfaces\ServletConfig $config The servlet configuration
+     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
      *
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     * @see \TechDivision\Servlet\GenericServlet::init()
      */
     public function init(ServletConfig $config)
     {
         
         // call parent init method
         parent::init($config);
-        
-        // initialize the mime type dictonary
-        $this->setMimeTypeDictionary(new MimeTypeDictionary());
         
         // create a new service instance
         $initialContext = $this->getInitialContext();
@@ -97,38 +87,16 @@ class ThumbnailServlet extends AbstractServlet
     }
 
     /**
-     * Sets the mime type dictionary to use.
-     *
-     * @param \TechDivision\ServletContainer\Utilities\MimeTypeDictionary $mimeTypeDictionary The mime type dictionary to use
-     * 
-     * @return void
-     */
-    public function setMimeTypeDictionary(MimeTypeDictionary $mimeTypeDictionary)
-    {
-        $this->mimeTypeDictionary = $mimeTypeDictionary;
-    }
-
-    /**
-     * Returns the mime type dictionary to use.
-     *
-     * @return \TechDivision\ServletContainer\Utilities\MimeTypeDictionary The mime type dictionary
-     */
-    public function getMimeTypeDictionary()
-    {
-        return $this->mimeTypeDictionary;
-    }
-
-    /**
      * Tries to load the requested thumbnail from the applications WEB-INF directory 
      * and adds it to the response.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Interfaces\Servlet::doGet()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doGet()
      */
-    public function doGet(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doGet(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         
         // explode the URI
@@ -157,7 +125,7 @@ class ThumbnailServlet extends AbstractServlet
         // set mimetypes to header
         $servletResponse->addHeader(
             'Content-Type',
-            $this->getMimeTypeDictionary()->find(
+            MimeType::getMimeTypeByExtension(
                 pathinfo(
                     $file->getFilename(),
                     PATHINFO_EXTENSION
@@ -183,6 +151,6 @@ class ThumbnailServlet extends AbstractServlet
         }
         
         // add the thumbnail as response content
-        $servletResponse->setContent(file_get_contents($file->getRealPath()));
+        $servletResponse->appendBodyStream(file_get_contents($file->getRealPath()));
     }
 }

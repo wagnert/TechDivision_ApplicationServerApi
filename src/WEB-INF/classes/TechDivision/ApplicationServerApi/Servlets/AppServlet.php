@@ -22,12 +22,9 @@
 
 namespace TechDivision\ApplicationServerApi\Servlets;
 
-use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
-use TechDivision\ApplicationServerApi\Service\AppService;
-use TechDivision\ApplicationServer\Utilities\DirectoryKeys;
-use TechDivision\ServletContainer\Http\ServletRequest;
-use TechDivision\ServletContainer\Http\ServletResponse;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
+use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\Http\HttpServletRequest;
+use TechDivision\Servlet\Http\HttpServletResponse;
 
 /**
  * Servlet that handles all app related requests.
@@ -60,10 +57,10 @@ class AppServlet extends AbstractServlet
     /**
      * Initializes the servlet when the application server starts.
      *
-     * @param \TechDivision\ServletContainer\Interfaces\ServletConfig $config The servlet configuration
+     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
      *
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     * @see \TechDivision\Servlet\GenericServlet::init()
      */
     public function init(ServletConfig $config)
     {
@@ -86,27 +83,27 @@ class AppServlet extends AbstractServlet
     /**
      * Tries to load the requested apps and adds them to the response.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Interfaces\Servlet::doGet()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doGet()
      */
-    public function doGet(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doGet(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
-        $this->find($req, $res);
+        $this->find($servletRequest, $servletResponse);
     }
 
     /**
      * Creates a new app.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPost()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doPost()
      */
-    public function doPost(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doPost(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $this->getService()->upload($servletRequest->getPart(AppServlet::UPLOADED_PHAR_FILE));
     }
@@ -114,13 +111,13 @@ class AppServlet extends AbstractServlet
     /**
      * Updates the app with the passed content.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPut()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doPut()
      */
-    public function doPut(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doPut(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $content = json_decode($servletRequest->getContent());
         $this->getService()->update($content);
@@ -129,13 +126,13 @@ class AppServlet extends AbstractServlet
     /**
      * Delete the requested app.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doDelete()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doDelete()
      */
-    public function doDelete(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doDelete(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $uri = trim($servletRequest->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);

@@ -22,11 +22,9 @@
 
 namespace TechDivision\ApplicationServerApi\Servlets;
 
-use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
-use TechDivision\ApplicationServerApi\Service\ContainerService;
-use TechDivision\ServletContainer\Http\ServletRequest;
-use TechDivision\ServletContainer\Http\ServletResponse;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
+use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\Http\HttpServletRequest;
+use TechDivision\Servlet\Http\HttpServletResponse;
 
 /**
  * Servlet that handles all container related requests.
@@ -59,10 +57,10 @@ class ContainerServlet extends AbstractServlet
     /**
      * Initializes the servlet when the application server starts.
      *
-     * @param \TechDivision\ServletContainer\Interfaces\ServletConfig $config The servlet configuration
+     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
      *
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     * @see \TechDivision\Servlet\GenericServlet::init()
      */
     public function init(ServletConfig $config)
     {
@@ -85,13 +83,13 @@ class ContainerServlet extends AbstractServlet
     /**
      * Tries to load the requested containers and adds them to the response.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Interfaces\Servlet::doGet()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doGet()
      */
-    public function doGet(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doGet(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $this->find($servletRequest, $servletResponse);
     }
@@ -99,13 +97,13 @@ class ContainerServlet extends AbstractServlet
     /**
      * Creates a new container.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPost()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doPost()
      */
-    public function doPost(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doPost(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $content = json_decode($servletRequest->getContent());
         $this->getService()->create($content);
@@ -114,13 +112,13 @@ class ContainerServlet extends AbstractServlet
     /**
      * Updates the container with the passed content.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPut()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doPut()
      */
-    public function doPut(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doPut(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $content = json_decode($servletRequest->getContent());
         $this->getService()->update($content);
@@ -129,13 +127,13 @@ class ContainerServlet extends AbstractServlet
     /**
      * Delete the requested container.
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doDelete()
+     * @see \TechDivision\Servlet\Http\HttpServlet::doDelete()
      */
-    public function doDelete(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function doDelete(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $uri = trim($servletRequest->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);

@@ -22,12 +22,12 @@
 
 namespace TechDivision\ApplicationServerApi\Servlets;
 
+use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\Http\HttpServletRequest;
+use TechDivision\Servlet\Http\HttpServletResponse;
+use TechDivision\ServletEngine\Http\Servlet;
 use TechDivision\ApplicationServer\InitialContext;
 use TechDivision\ApplicationServerApi\Service\Service;
-use TechDivision\ServletContainer\Http\ServletRequest;
-use TechDivision\ServletContainer\Http\ServletResponse;
-use TechDivision\ServletContainer\Servlets\HttpServlet;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
 
 /**
  * Abstract servlet that provides basic functionality for
@@ -41,7 +41,7 @@ use TechDivision\ServletContainer\Interfaces\ServletConfig;
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link       http://www.appserver.io
  */
-abstract class AbstractServlet extends HttpServlet
+abstract class AbstractServlet extends Servlet
 {
 
     /**
@@ -61,10 +61,10 @@ abstract class AbstractServlet extends HttpServlet
     /**
      * Initializes the servlet when the application server starts.
      *
-     * @param \TechDivision\ServletContainer\Interfaces\ServletConfig $config The servlet configuration
+     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
      *
      * @return void
-     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     * @see \TechDivision\Servlet\GenericServlet::init()
      */
     public function init(ServletConfig $config)
     {
@@ -102,15 +102,15 @@ abstract class AbstractServlet extends HttpServlet
     
     /**
      * Generic finder implementation using the actual service instance.
-     * 
-     * @param \TechDivision\ServletContainer\Http\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\ServletContainer\Http\ServletResponse $servletResponse The response instance
+     *
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
      * @return void
      * @see \TechDivision\ApplicationServerApi\Service\Service::load();
      * @see \TechDivision\ApplicationServerApi\Service\Service::findAll();
      */
-    public function find(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function find(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
 
         // load the requested URI
@@ -138,7 +138,7 @@ abstract class AbstractServlet extends HttpServlet
         
         // set the JSON encoded data in the response
         $servletResponse->addHeader('Content-Type', 'application/json');
-        $servletResponse->setContent(json_encode($content));
+        $servletResponse->appendBodyStream(json_encode($content));
     }
 
     /**
