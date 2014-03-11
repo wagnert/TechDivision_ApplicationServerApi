@@ -186,11 +186,11 @@ abstract class AbstractServlet extends Servlet
     /**
      * Returns the application's base URL for html base tag
      *
-     * @param \TechDivision\ServletContainer\Http\ServletRequest $servletRequest The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequest $servletRequest The request instance
      * 
      * @return string The applications base URL
      */
-    public function getBaseUrl(ServletRequest $servletRequest)
+    public function getBaseUrl(HttpServletRequest $servletRequest)
     {
         // initialize the base URL
         $baseUrl = '/';

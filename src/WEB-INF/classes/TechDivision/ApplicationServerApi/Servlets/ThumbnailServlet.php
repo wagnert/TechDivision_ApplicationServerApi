@@ -25,7 +25,7 @@ namespace TechDivision\ApplicationServerApi\Servlets;
 use TechDivision\Servlet\ServletConfig;
 use TechDivision\Servlet\Http\HttpServletRequest;
 use TechDivision\Servlet\Http\HttpServletResponse;
-use TechDivision\WebServer\Dictionaries\MimeType;
+use TechDivision\WebServer\Dictionaries\MimeTypes;
 use TechDivision\ApplicationServerApi\Service\AppService;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
 use TechDivision\ApplicationServerApi\Exceptions\FileNotFoundException;
@@ -125,7 +125,7 @@ class ThumbnailServlet extends AbstractServlet
         // set mimetypes to header
         $servletResponse->addHeader(
             'Content-Type',
-            MimeType::getMimeTypeByExtension(
+            MimeTypes::getMimeTypeByExtension(
                 pathinfo(
                     $file->getFilename(),
                     PATHINFO_EXTENSION
