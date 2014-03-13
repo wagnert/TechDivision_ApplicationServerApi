@@ -8,26 +8,40 @@
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Servlets
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
+
 namespace TechDivision\ApplicationServerApi\Servlets;
 
-use TechDivision\ServletContainer\Interfaces\Request;
-use TechDivision\ServletContainer\Interfaces\Response;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
-use TechDivision\ServletContainer\Utilities\MimeTypeDictionary;
-use TechDivision\ServletContainer\Exceptions\FileNotFoundException;
-use TechDivision\ServletContainer\Exceptions\FileNotReadableException;
-use TechDivision\ServletContainer\Exceptions\FoundDirInsteadOfFileException;
+use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\Http\HttpServletRequest;
+use TechDivision\Servlet\Http\HttpServletResponse;
+use TechDivision\WebServer\Dictionaries\MimeTypes;
 use TechDivision\ApplicationServerApi\Service\AppService;
 use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
+use TechDivision\ApplicationServerApi\Exceptions\FileNotFoundException;
+use TechDivision\ApplicationServerApi\Exceptions\FileNotReadableException;
+use TechDivision\ApplicationServerApi\Exceptions\FoundDirInsteadOfFileException;
 
 /**
- *
- * @package TechDivision\ApplicationServerApi
- * @copyright Copyright (c) 2013 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim <tw@techdivision.com>
+ * Servlet that handles all thumbnail related requests.
+ * 
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Servlets
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 class ThumbnailServlet extends AbstractServlet
 {
@@ -47,16 +61,12 @@ class ThumbnailServlet extends AbstractServlet
     protected $service;
 
     /**
-     * Hold dictionary for mime types.
+     * Initializes the servlet when the application server starts.
      *
-     * @var \TechDivision\ServletContainer\Utilities\MimeTypeDictionary
-     */
-    protected $mimeTypeDictionary;
-
-    /**
-     * (non-PHPdoc)
+     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
      *
-     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     * @return void
+     * @see \TechDivision\Servlet\GenericServlet::init()
      */
     public function init(ServletConfig $config)
     {
@@ -64,52 +74,37 @@ class ThumbnailServlet extends AbstractServlet
         // call parent init method
         parent::init($config);
         
-        // initialize the mime type dictonary
-        $this->setMimeTypeDictionary(new MimeTypeDictionary());
-        
         // create a new service instance
         $initialContext = $this->getInitialContext();
-        $this->setService($initialContext->newInstance(ThumbnailServlet::SERVICE_CLASS, array(
-            $initialContext
-        )));
+        $this->setService(
+            $initialContext->newInstance(
+                ThumbnailServlet::SERVICE_CLASS,
+                array(
+                    $initialContext
+                )
+            )
+        );
     }
 
     /**
-     * Set's the mime type dictionary to use.
+     * Tries to load the requested thumbnail from the applications WEB-INF directory 
+     * and adds it to the response.
      *
-     * @param \TechDivision\ServletContainer\Utilities\MimeTypeDictionary $mimeTypeDictionary
-     *            The mime type dictionary to use
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * 
      * @return void
+     * @see \TechDivision\Servlet\Http\HttpServlet::doGet()
      */
-    public function setMimeTypeDictionary(MimeTypeDictionary $mimeTypeDictionary)
-    {
-        $this->mimeTypeDictionary = $mimeTypeDictionary;
-    }
-
-    /**
-     * Return's the mime type dictionary to use.
-     *
-     * @return \TechDivision\ServletContainer\Utilities\MimeTypeDictionary The mime type dictionary
-     */
-    public function getMimeTypeDictionary()
-    {
-        return $this->mimeTypeDictionary;
-    }
-
-    /**
-     * (non-PHPdoc)
-     *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doGet()
-     */
-    public function doGet(Request $req, Response $res)
+    public function doGet(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         
         // explode the URI
-        $uri = trim($req->getUri(), '/');
+        $uri = trim($servletRequest->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
         
         // set the base URL for rendering images/thumbnails
-        $this->getService()->setBaseUrl($this->getBaseUrl($req));
+        $this->getService()->setBaseUrl($this->getBaseUrl($servletRequest));
         $this->getService()->setConfigurationPath($this->getConfigurationPath());
         
         // load file information and return the file object if possible
@@ -128,27 +123,34 @@ class ThumbnailServlet extends AbstractServlet
         $file = $fileInfo->openFile();
         
         // set mimetypes to header
-        $res->addHeader('Content-Type', $this->getMimeTypeDictionary()
-            ->find(pathinfo($file->getFilename(), PATHINFO_EXTENSION)));
+        $servletResponse->addHeader(
+            'Content-Type',
+            MimeTypes::getMimeTypeByExtension(
+                pathinfo(
+                    $file->getFilename(),
+                    PATHINFO_EXTENSION
+                )
+            )
+        );
         
         // set last modified date from file
-        $res->addHeader('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $file->getMTime()));
+        $servletResponse->addHeader('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $file->getMTime()));
         
         // set expires date
-        $res->addHeader('Expires', gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
+        $servletResponse->addHeader('Expires', gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
         
         // check if If-Modified-Since header info is set
-        if ($req->getHeader('If-Modified-Since')) {
+        if ($servletRequest->getHeader('If-Modified-Since')) {
             // check if file is modified since header given header date
-            if (strtotime($req->getHeader('If-Modified-Since')) >= $file->getMTime()) {
+            if (strtotime($servletRequest->getHeader('If-Modified-Since')) >= $file->getMTime()) {
                 // send 304 Not Modified Header information without content
-                $res->addHeader('status', 'HTTP/1.1 304 Not Modified');
-                $res->getContent(PHP_EOL);
+                $servletResponse->addHeader('status', 'HTTP/1.1 304 Not Modified');
+                $servletResponse->getContent(PHP_EOL);
                 return;
             }
         }
         
         // add the thumbnail as response content
-        $res->setContent(file_get_contents($file->getRealPath()));
+        $servletResponse->appendBodyStream(file_get_contents($file->getRealPath()));
     }
 }

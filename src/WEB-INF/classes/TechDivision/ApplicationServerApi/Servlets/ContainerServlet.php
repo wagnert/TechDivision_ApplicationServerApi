@@ -8,22 +8,34 @@
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Servlets
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
+
 namespace TechDivision\ApplicationServerApi\Servlets;
 
-use TechDivision\ServletContainer\Interfaces\Request;
-use TechDivision\ServletContainer\Interfaces\Response;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
-use TechDivision\ApplicationServerApi\Servlets\AbstractServlet;
-use TechDivision\ApplicationServerApi\Service\ContainerService;
+use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\Http\HttpServletRequest;
+use TechDivision\Servlet\Http\HttpServletResponse;
 
 /**
- *
- * @package TechDivision\ApplicationServerApi
- * @copyright Copyright (c) 2013 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim <tw@techdivision.com>
+ * Servlet that handles all container related requests.
+ * 
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Servlets
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 class ContainerServlet extends AbstractServlet
 {
@@ -43,62 +55,87 @@ class ContainerServlet extends AbstractServlet
     protected $service;
 
     /**
-     * (non-PHPdoc)
-     * 
-     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     * Initializes the servlet when the application server starts.
+     *
+     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
+     *
+     * @return void
+     * @see \TechDivision\Servlet\GenericServlet::init()
      */
     public function init(ServletConfig $config)
     {
+        
         // call parent init method
         parent::init($config);
         
         // create a new service instance
         $initialContext = $this->getInitialContext();
-        $this->setService($initialContext->newInstance(ContainerServlet::SERVICE_CLASS, array(
-            $initialContext
-        )));
+        $this->setService(
+            $initialContext->newInstance(
+                ContainerServlet::SERVICE_CLASS,
+                array(
+                    $initialContext
+                )
+            )
+        );
     }
 
     /**
-     * (non-PHPdoc)
+     * Tries to load the requested containers and adds them to the response.
      *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doGet()
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * 
+     * @return void
+     * @see \TechDivision\Servlet\Http\HttpServlet::doGet()
      */
-    public function doGet(Request $req, Response $res)
+    public function doGet(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
-        $this->find($req, $res);
+        $this->find($servletRequest, $servletResponse);
     }
 
     /**
-     * (non-PHPdoc)
+     * Creates a new container.
      *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPost()
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * 
+     * @return void
+     * @see \TechDivision\Servlet\Http\HttpServlet::doPost()
      */
-    public function doPost(Request $req, Response $res)
+    public function doPost(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
-        $content = json_decode($req->getContent());
+        $content = json_decode($servletRequest->getContent());
         $this->getService()->create($content);
     }
 
     /**
-     * (non-PHPdoc)
+     * Updates the container with the passed content.
      *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doPut()
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * 
+     * @return void
+     * @see \TechDivision\Servlet\Http\HttpServlet::doPut()
      */
-    public function doPut(Request $req, Response $res)
+    public function doPut(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
-        $content = json_decode($req->getContent());
+        $content = json_decode($servletRequest->getContent());
         $this->getService()->update($content);
     }
 
     /**
-     * (non-PHPdoc)
+     * Delete the requested container.
      *
-     * @see \TechDivision\ServletContainer\Servlets\HttpServlet::doDelete()
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * 
+     * @return void
+     * @see \TechDivision\Servlet\Http\HttpServlet::doDelete()
      */
-    public function doDelete(Request $req, Response $res)
+    public function doDelete(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
-        $uri = trim($req->getUri(), '/');
+        $uri = trim($servletRequest->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
         $this->getService()->delete($id);
     }

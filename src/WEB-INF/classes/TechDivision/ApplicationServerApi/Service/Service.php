@@ -8,6 +8,16 @@
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Service
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 
 namespace TechDivision\ApplicationServerApi\Service;
@@ -15,11 +25,13 @@ namespace TechDivision\ApplicationServerApi\Service;
 /**
  * Service interface for all API services.
  * 
- * @package TechDivision\ApplicationServerApi
- * @copyright Copyright (c) 2013 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim <tw@techdivision.com>
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Service
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 interface Service
 {
@@ -35,8 +47,8 @@ interface Service
      * Initializes the stdClass representation of the configuration node with
      * the ID passed as parameter.
      *
-     * @param string $id
-     *            The ID of the requested configuration node
+     * @param string $id The ID of the requested configuration node
+     * 
      * @return \stdClass The app node as \stdClass representation
      */
     public function load($id);
@@ -53,6 +65,7 @@ interface Service
      * passed \stdClass instance.
      * 
      * @param \stdClass $toCreate The data to use for configuration node creation
+     * 
      * @return void
      */
     public function create(\stdClass $toCreate);
@@ -61,6 +74,7 @@ interface Service
      * Updates The configuration node with the passed data.
      * 
      * @param \stdClass $toUpdate The data to update the configuration node with
+     * 
      * @return void 
      */
     public function update(\stdClass $toUpdate);
@@ -70,6 +84,7 @@ interface Service
      * from the system configuration.
      * 
      * @param string $id The ID of the configuration node to delete
+     * 
      * @return void
      */
     public function delete($id);
@@ -78,8 +93,8 @@ interface Service
      * Creates a new instance of the passed API class name
      * and returns it.
      *
-     * @param string $apiClass
-     *            The API class name to return the instance for
+     * @param string $apiClass The API class name to return the instance for
+     * 
      * @return \TechDivision\ApplicationServer\Api\ServiceInterface The API instance
      */
     public function getApi($apiClass);

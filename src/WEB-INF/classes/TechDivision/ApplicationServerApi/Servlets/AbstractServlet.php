@@ -8,25 +8,40 @@
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Servlets
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
+
 namespace TechDivision\ApplicationServerApi\Servlets;
 
-use TechDivision\ServletContainer\Servlets\HttpServlet;
-use TechDivision\ServletContainer\Interfaces\ServletConfig;
-use TechDivision\ServletContainer\Interfaces\Request;
+use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\Http\HttpServletRequest;
+use TechDivision\Servlet\Http\HttpServletResponse;
+use TechDivision\ServletEngine\Http\Servlet;
 use TechDivision\ApplicationServer\InitialContext;
-use TechDivision\ServletContainer\Interfaces\Response;
 use TechDivision\ApplicationServerApi\Service\Service;
 
 /**
- *
- * @package TechDivision\ApplicationServerApi
- * @copyright Copyright (c) 2013 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim Wagner <tw@techdivision.com>
+ * Abstract servlet that provides basic functionality for
+ * all other API servlets.
+ * 
+ * @category   Appserver
+ * @package    TechDivision_ApplicationServerApi
+ * @subpackage Servlets
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2014 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
-abstract class AbstractServlet extends HttpServlet
+abstract class AbstractServlet extends Servlet
 {
 
     /**
@@ -44,22 +59,30 @@ abstract class AbstractServlet extends HttpServlet
     protected $service;
 
     /**
-     * (non-PHPdoc)
+     * Initializes the servlet when the application server starts.
      *
-     * @see \TechDivision\ServletContainer\Servlets\GenericServlet::init()
+     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
+     *
+     * @return void
+     * @see \TechDivision\Servlet\GenericServlet::init()
      */
     public function init(ServletConfig $config)
     {
+        
+        // call parent init method
         parent::init($config);
-        $this->setInitialContext($this->getServletConfig()
-            ->getApplication()
-            ->getInitialContext());
+        
+        // set the initial context instance
+        $this->setInitialContext(
+            $this->getServletConfig()->getApplication()->getInitialContext()
+        );
     }
     
     /**
      * Set's the actual service instance to use.
      * 
      * @param \TechDivision\ApplicationServerApi\Service\Service $service The service instance to set
+     * 
      * @return void
      */
     public function setService(Service $service)
@@ -79,30 +102,30 @@ abstract class AbstractServlet extends HttpServlet
     
     /**
      * Generic finder implementation using the actual service instance.
+     *
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
      * 
-     * @param Request $req The actual request instance
-     * @param Response $res The acual response instance
      * @return void
      * @see \TechDivision\ApplicationServerApi\Service\Service::load();
      * @see \TechDivision\ApplicationServerApi\Service\Service::findAll();
      */
-    public function find(Request $req, Response $res)
+    public function find(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
 
         // load the requested URI
-        $uri = trim($req->getUri(), '/');
+        $uri = trim($servletRequest->getUri(), '/');
         
         // first check if a collection of ID's has been requested
-        if ($ids = $req->getParameter('ids')) {
+        if ($ids = $servletRequest->getParameter('ids')) {
         
             // load all entities with the passed ID's
             $content = array();
             foreach ($ids as $id) {
                 $content[] = $this->getService()->load($id);
             }
-        
-            // then check if all entities has to be loaded or exactly one
-        } else {
+            
+        } else { // then check if all entities has to be loaded or exactly one
         
             // extract the ID of available, and load the requested OR all entities
             list ($applicationName, $entity, $id) = explode('/', $uri, 3);
@@ -114,8 +137,8 @@ abstract class AbstractServlet extends HttpServlet
         }
         
         // set the JSON encoded data in the response
-        $res->addHeader('Content-Type', 'application/json');
-        $res->setContent(json_encode($content));
+        $servletResponse->addHeader('Content-Type', 'application/json');
+        $servletResponse->appendBodyStream(json_encode($content));
     }
 
     /**
@@ -131,8 +154,9 @@ abstract class AbstractServlet extends HttpServlet
     /**
      * Sets the initial context instance.
      *
-     * @param \TechDivision\ApplicationServer\InitialContext $initialContext
-     *            The initial context instance
+     * @param \TechDivision\ApplicationServer\InitialContext $initialContext The initial context instance
+     * 
+     * @return void
      */
     public function setInitialContext(InitialContext $initialContext)
     {
@@ -162,20 +186,18 @@ abstract class AbstractServlet extends HttpServlet
     /**
      * Returns the application's base URL for html base tag
      *
-     * @return string The application's base URL
+     * @param \TechDivision\Servlet\Http\HttpServletRequest $servletRequest The request instance
+     * 
+     * @return string The applications base URL
      */
-    public function getBaseUrl(Request $req)
+    public function getBaseUrl(HttpServletRequest $servletRequest)
     {
         // initialize the base URL
         $baseUrl = '/';
         
         // if the application has NOT been called over a VHost configuration append application folder name
-        if (! $this->getServletConfig()
-            ->getApplication()
-            ->isVhostOf($req->getServerName())) {
-            $baseUrl .= $this->getServletConfig()
-                ->getApplication()
-                ->getName() . '/';
+        if (!$this->getServletConfig()->getApplication()->isVhostOf($servletRequest->getServerName())) {
+            $baseUrl .= $this->getServletConfig()->getApplication()->getName() . '/';
         }
         
         // return the base URL
