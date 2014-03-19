@@ -22,6 +22,7 @@
 
 namespace TechDivision\ApplicationServerApi\Servlets;
 
+use TechDivision\Http\HttpProtocol;
 use TechDivision\Servlet\ServletConfig;
 use TechDivision\Servlet\Http\HttpServlet;
 use TechDivision\Servlet\Http\HttpServletRequest;
@@ -45,59 +46,22 @@ abstract class AbstractServlet extends HttpServlet
 {
 
     /**
-     * The initial context instance passed from the servlet config.
-     *
-     * @var \TechDivision\ApplicationServer\InitialContext
+     * Returns the servlets service class to use.
+     * 
+     * @return string The servlets service class
      */
-    protected $initialContext;
-
-    /**
-     * API Service wrapper.
-     *
-     * @var \TechDivision\ApplicationServerApi\Service\Service
-     */
-    protected $service;
-
-    /**
-     * Initializes the servlet when the application server starts.
-     *
-     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
-     *
-     * @return void
-     * @see \TechDivision\Servlet\GenericServlet::init()
-     */
-    public function init(ServletConfig $config)
-    {
-        
-        // call parent init method
-        parent::init($config);
-        
-        // set the initial context instance
-        $this->setInitialContext(
-            $this->getServletConfig()->getApplication()->getInitialContext()
-        );
-    }
+    public abstract function getServiceClass();
     
     /**
-     * Set's the actual service instance to use.
+     * Returns the actual service instance to use.
      * 
-     * @param \TechDivision\ApplicationServerApi\Service\Service $service The service instance to set
-     * 
-     * @return void
-     */
-    public function setService(Service $service)
-    {
-        $this->service = $service;
-    }
-    
-    /**
-     * Return's the actual service instance to use.
+     * @param \TechDivision\Servlet\Http\HttpServletRequest $servletRequest The request instance
      * 
      * @return \TechDivision\ApplicationServerApi\Service\Service The requested service instance
      */
-    public function getService()
+    public function getService(HttpServletRequest $servletRequest)
     {
-        return $this->service;
+        return $servletRequest->getContext()->newService($this->getServiceClass());
     }
     
     /**
@@ -122,7 +86,7 @@ abstract class AbstractServlet extends HttpServlet
             // load all entities with the passed ID's
             $content = array();
             foreach ($ids as $id) {
-                $content[] = $this->getService()->load($id);
+                $content[] = $this->getService($servletRequest)->load($id);
             }
             
         } else { // then check if all entities has to be loaded or exactly one
@@ -130,37 +94,15 @@ abstract class AbstractServlet extends HttpServlet
             // extract the ID of available, and load the requested OR all entities
             list ($applicationName, $entity, $id) = explode('/', $uri, 3);
             if ($id == null) {
-                $content = $this->getService()->findAll();
+                $content = $this->getService($servletRequest)->findAll();
             } else {
-                $content = $this->getService()->load($id);
+                $content = $this->getService($servletRequest)->load($id);
             }
         }
         
         // set the JSON encoded data in the response
-        $servletResponse->addHeader('Content-Type', 'application/json');
+        $servletResponse->addHeader(HttpProtocol::HEADER_CONTENT_TYPE, 'application/json');
         $servletResponse->appendBodyStream(json_encode($content));
-    }
-
-    /**
-     * Returns the initial context instance passed with the servlet config.
-     *
-     * @return \TechDivision\ApplicationServer\InitialContext The initial context instance
-     */
-    public function getInitialContext()
-    {
-        return $this->initialContext;
-    }
-
-    /**
-     * Sets the initial context instance.
-     *
-     * @param \TechDivision\ApplicationServer\InitialContext $initialContext The initial context instance
-     * 
-     * @return void
-     */
-    public function setInitialContext(InitialContext $initialContext)
-    {
-        $this->initialContext = $initialContext;
     }
 
     /**
@@ -196,8 +138,8 @@ abstract class AbstractServlet extends HttpServlet
         $baseUrl = '/';
         
         // if the application has NOT been called over a VHost configuration append application folder name
-        if (!$this->getServletConfig()->getApplication()->isVhostOf($servletRequest->getServerName())) {
-            $baseUrl .= $this->getServletConfig()->getApplication()->getName() . '/';
+        if (!$servletRequest->getContext()->isVhostOf($servletRequest->getServerName())) {
+            $baseUrl .= $servletRequest->getContext()->getName() . '/';
         }
         
         // return the base URL

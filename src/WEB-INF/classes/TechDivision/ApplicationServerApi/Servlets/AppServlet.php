@@ -55,29 +55,13 @@ class AppServlet extends AbstractServlet
     const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\AppService';
 
     /**
-     * Initializes the servlet when the application server starts.
-     *
-     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
-     *
-     * @return void
-     * @see \TechDivision\Servlet\GenericServlet::init()
+     * Returns the servlets service class to use.
+     * 
+     * @return string The servlets service class
      */
-    public function init(ServletConfig $config)
+    public function getServiceClass()
     {
-        
-        // call parent init method
-        parent::init($config);
-        
-        // create a new service instance
-        $initialContext = $this->getInitialContext();
-        $this->setService(
-            $initialContext->newInstance(
-                AppServlet::SERVICE_CLASS,
-                array(
-                    $initialContext
-                )
-            )
-        );
+        return AppServlet::SERVICE_CLASS;
     }
 
     /**
@@ -105,7 +89,7 @@ class AppServlet extends AbstractServlet
      */
     public function doPost(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
-        $this->getService()->upload($servletRequest->getPart(AppServlet::UPLOADED_PHAR_FILE));
+        $this->getService($servletRequest)->upload($servletRequest->getPart(AppServlet::UPLOADED_PHAR_FILE));
     }
 
     /**
@@ -120,7 +104,7 @@ class AppServlet extends AbstractServlet
     public function doPut(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $content = json_decode($servletRequest->getContent());
-        $this->getService()->update($content);
+        $this->getService($servletRequest)->update($content);
     }
 
     /**
@@ -136,6 +120,6 @@ class AppServlet extends AbstractServlet
     {
         $uri = trim($servletRequest->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-        $this->getService()->delete($id);
+        $this->getService($servletRequest)->delete($id);
     }
 }

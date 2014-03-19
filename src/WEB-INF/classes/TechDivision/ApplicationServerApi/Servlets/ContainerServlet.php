@@ -46,38 +46,15 @@ class ContainerServlet extends AbstractServlet
      * @var string
      */
     const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\ContainerService';
-    
-    /**
-     * Assmbler to assemble app nodes to stdClass representation.
-     *
-     * @var \TechDivision\ApplicationServerApi\Service\ContainerService
-     */
-    protected $service;
 
     /**
-     * Initializes the servlet when the application server starts.
-     *
-     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
-     *
-     * @return void
-     * @see \TechDivision\Servlet\GenericServlet::init()
+     * Returns the servlets service class to use.
+     * 
+     * @return string The servlets service class
      */
-    public function init(ServletConfig $config)
+    public function getServiceClass()
     {
-        
-        // call parent init method
-        parent::init($config);
-        
-        // create a new service instance
-        $initialContext = $this->getInitialContext();
-        $this->setService(
-            $initialContext->newInstance(
-                ContainerServlet::SERVICE_CLASS,
-                array(
-                    $initialContext
-                )
-            )
-        );
+        return ContainerServlet::SERVICE_CLASS;
     }
 
     /**
@@ -106,7 +83,7 @@ class ContainerServlet extends AbstractServlet
     public function doPost(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $content = json_decode($servletRequest->getContent());
-        $this->getService()->create($content);
+        $this->getService($servletRequest)->create($content);
     }
 
     /**
@@ -121,7 +98,7 @@ class ContainerServlet extends AbstractServlet
     public function doPut(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
         $content = json_decode($servletRequest->getContent());
-        $this->getService()->update($content);
+        $this->getService($servletRequest)->update($content);
     }
 
     /**
@@ -137,6 +114,6 @@ class ContainerServlet extends AbstractServlet
     {
         $uri = trim($servletRequest->getUri(), '/');
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
-        $this->getService()->delete($id);
+        $this->getService($servletRequest)->delete($id);
     }
 }

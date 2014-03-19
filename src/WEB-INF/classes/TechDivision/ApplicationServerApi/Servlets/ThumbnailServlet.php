@@ -54,36 +54,13 @@ class ThumbnailServlet extends AbstractServlet
     const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\AppService';
 
     /**
-     * Assmbler to assemble app nodes to stdClass representation.
-     *
-     * @var \TechDivision\ApplicationServerApi\Service\AppService
+     * Returns the servlets service class to use.
+     * 
+     * @return string The servlets service class
      */
-    protected $service;
-
-    /**
-     * Initializes the servlet when the application server starts.
-     *
-     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
-     *
-     * @return void
-     * @see \TechDivision\Servlet\GenericServlet::init()
-     */
-    public function init(ServletConfig $config)
+    public function getServiceClass()
     {
-        
-        // call parent init method
-        parent::init($config);
-        
-        // create a new service instance
-        $initialContext = $this->getInitialContext();
-        $this->setService(
-            $initialContext->newInstance(
-                ThumbnailServlet::SERVICE_CLASS,
-                array(
-                    $initialContext
-                )
-            )
-        );
+        return ThumbnailServlet::SERVICE_CLASS;
     }
 
     /**
@@ -104,11 +81,11 @@ class ThumbnailServlet extends AbstractServlet
         list ($applicationName, $entity, $id) = explode('/', $uri, 3);
         
         // set the base URL for rendering images/thumbnails
-        $this->getService()->setBaseUrl($this->getBaseUrl($servletRequest));
-        $this->getService()->setConfigurationPath($this->getConfigurationPath());
+        $this->getService($servletRequest)->setBaseUrl($this->getBaseUrl($servletRequest));
+        $this->getService($servletRequest)->setConfigurationPath($this->getConfigurationPath());
         
         // load file information and return the file object if possible
-        $fileInfo = new \SplFileInfo($path = $this->getService()->thumbnail($id));
+        $fileInfo = new \SplFileInfo($path = $this->getService($servletRequest)->thumbnail($id));
         if ($fileInfo->isDir()) {
             throw new FoundDirInsteadOfFileException(sprintf("Requested file %s is a directory", $path));
         }
