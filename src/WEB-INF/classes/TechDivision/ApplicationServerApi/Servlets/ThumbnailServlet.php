@@ -82,7 +82,7 @@ class ThumbnailServlet extends AbstractServlet
         
         // set the base URL for rendering images/thumbnails
         $this->getService($servletRequest)->setBaseUrl($this->getBaseUrl($servletRequest));
-        $this->getService($servletRequest)->setConfigurationPath($this->getConfigurationPath());
+        $this->getService($servletRequest)->setWebappPath($servletRequest->getContext()->getWebappPath());
         
         // load file information and return the file object if possible
         $fileInfo = new \SplFileInfo($path = $this->getService($servletRequest)->thumbnail($id));

@@ -61,7 +61,9 @@ abstract class AbstractServlet extends HttpServlet
      */
     public function getService(HttpServletRequest $servletRequest)
     {
-        return $servletRequest->getContext()->newService($this->getServiceClass());
+        $service = $servletRequest->getContext()->newService($this->getServiceClass());
+        $service->setWebappPath($servletRequest->getContext()->getWebappPath());
+        return $service;
     }
     
     /**
@@ -103,26 +105,6 @@ abstract class AbstractServlet extends HttpServlet
         // set the JSON encoded data in the response
         $servletResponse->addHeader(HttpProtocol::HEADER_CONTENT_TYPE, 'application/json');
         $servletResponse->appendBodyStream(json_encode($content));
-    }
-
-    /**
-     * Returns the base path to the web app.
-     *
-     * @return string The base path
-     */
-    public function getWebappPath()
-    {
-        return $this->getServletConfig()->getWebappPath();
-    }
-
-    /**
-     * Returns the absolute path to the WEB-INF configuration folder.
-     * 
-     * @return string The path to the configuration folder
-     */
-    public function getConfigurationPath()
-    {
-        return $this->getWebappPath() . DIRECTORY_SEPARATOR . 'WEB-INF';
     }
     
     /**
