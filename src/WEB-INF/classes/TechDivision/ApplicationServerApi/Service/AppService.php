@@ -188,6 +188,6 @@ class AppService extends AbstractService
         }
         
         // if not, return the placeholder thumbnail
-        return $this->getConfigurationPath() . DIRECTORY_SEPARATOR . self::THUMBNAIL_PLACEHOLDER;
+        return $this->getWebappPath() . DIRECTORY_SEPARATOR . 'WEB-INF'  . DIRECTORY_SEPARATOR . self::THUMBNAIL_PLACEHOLDER;
     }
 }

@@ -52,11 +52,11 @@ class AbstractService implements Service
     protected $baseUrl;
     
     /**
-     * The path to the admin WEB-INF configuration path.
+     * The path to the web application.
      * 
      * @var string
      */
-    protected $configurationPath;
+    protected $webappPath;
     
     /**
      * The initial context instance passed from the servlet.
@@ -182,24 +182,24 @@ class AbstractService implements Service
     }
     
     /**
-     * The path to the admin WEB-INF configuration path.
+     * The the path to the web application.
      * 
-     * @param string $configurationPath The apps configuration path
+     * @param string $webappPath The path to the web application
      * 
      * @return void
      */
-    public function setConfigurationPath($configurationPath)
+    public function setWebappPath($webappPath)
     {
-        $this->configurationPath = $configurationPath;
+        $this->webappPath = $webappPath;
     }
     
     /**
-     * Return's the path to the admin WEB-INF configuration path.
+     * Returns the path to the web application.
      * 
-     * @return string The apps configuration path
+     * @return string The web application path
      */
-    public function getConfigurationPath()
+    public function getWebappPath()
     {
-        return $this->configurationPath;
+        return $this->webappPath;
     }
 }

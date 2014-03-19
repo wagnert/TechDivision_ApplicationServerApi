@@ -100,16 +100,16 @@ interface Service
     public function getApi($apiClass);
     
     /**
-     * Return's the base URL for rendering images/thumbnails.
+     * Returns the base URL for rendering images/thumbnails.
      * 
      * @return string The base URL
      */
     public function getBaseUrl();
     
     /**
-     * Return's the path to the admin WEB-INF configuration path.
+     * Returns the path to the web application.
      * 
-     * @return string The app's configuration path
+     * @return string The web application path
      */
-    public function getConfigurationPath();
+    public function getWebappPath();
 }
