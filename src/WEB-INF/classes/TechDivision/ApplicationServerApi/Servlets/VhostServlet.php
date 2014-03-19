@@ -48,29 +48,13 @@ class VhostServlet extends AbstractServlet
     const SERVICE_CLASS = '\TechDivision\ApplicationServerApi\Service\VhostService';
 
     /**
-     * Initializes the servlet when the application server starts.
-     *
-     * @param \TechDivision\Servlet\ServletConfig $config The servlet configuration
-     *
-     * @return void
-     * @see \TechDivision\Servlet\GenericServlet::init()
+     * Returns the servlets service class to use.
+     * 
+     * @return string The servlets service class
      */
-    public function init(ServletConfig $config)
+    public function getServiceClass()
     {
-        
-        // call parent init method
-        parent::init($config);
-        
-        // create a new service instance
-        $initialContext = $this->getInitialContext();
-        $this->setService(
-            $initialContext->newInstance(
-                VhostServlet::SERVICE_CLASS,
-                array(
-                    $initialContext
-                )
-            )
-        );
+        return VhostServlet::SERVICE_CLASS;
     }
 
     /**
