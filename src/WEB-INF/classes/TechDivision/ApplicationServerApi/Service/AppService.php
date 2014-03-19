@@ -22,7 +22,7 @@
 namespace TechDivision\ApplicationServerApi\Service;
 
 use TechDivision\ApplicationServer\Api\Node\AppNode;
-use TechDivision\ServletContainer\Http\HttpPart;
+use TechDivision\Http\HttpPart;
 
 /**
  * Service implementation that handles all app related functionality.
