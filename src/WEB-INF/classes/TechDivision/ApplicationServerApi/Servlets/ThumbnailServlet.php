@@ -122,7 +122,7 @@ class ThumbnailServlet extends AbstractServlet
             if (strtotime($servletRequest->getHeader('If-Modified-Since')) >= $file->getMTime()) {
                 // send 304 Not Modified Header information without content
                 $servletResponse->addHeader('status', 'HTTP/1.1 304 Not Modified');
-                $servletResponse->getContent(PHP_EOL);
+                $servletResponse->appendBodyStream(PHP_EOL);
                 return;
             }
         }
